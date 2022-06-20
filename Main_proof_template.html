@@ -1,0 +1,426 @@
+{% set_title 'Order Proof' %}
+<div id="in_container">
+  <div style="display: block; page-break-after: avoid;">
+    <div id="in_pre">
+      {% logo 200 200 %}
+      <center style="font-size: 36px; font-weight: bold; color: #eee;">
+        {% if is_quote %}
+        QUOTE PROOF
+        {% else %}
+        ORDER PROOF
+        {% endif %}
+      </center>
+    </div>
+    <div id="in_header">
+      <div class="details">
+        <h1>
+          {% if from.account.company %}{{ from.account.company }}{% endif %}
+          {% if from.fc_settings.company_identification_number %}<br />{{ from.fc_settings.company_identification_number }}{% endif %}
+          {% if from.account.has_address? %}
+          <span>
+            {{ from.account.address }} {{ from.account.city }}, {{ from.account.state }}
+            {{ from.account.zip }}<br />
+            {{ from.account.country_name }}
+          </span>
+          {% endif %}
+          <a href="http://{{ site.primary_domain }}">http://{{ site.primary_domain }}</a>
+        </h1>
+      </div>
+
+      <div class="order">
+        <ul>
+          {% if is_quote %}
+          <li>
+            <h2><label>Quote #</label><span>{{order.quote_number}}</span></h2>
+          </li>
+          {% elsif order.is_invoiced? %}
+          <li>
+            <h2><label>INVOICE #</label><span>{{order.order_number}}</span></h2>
+          </li>
+          {% else %}
+          <li>
+            <h2><label>Order #</label><span>{{order.order_number}}</span></h2>
+          </li>
+          {% endif %}
+
+          {% if order.has_po_number? %}
+          <li><label>PO Number</label><span>{{ order.po_number }}</span></li>
+          {% endif %}
+          {% if is_quote %}
+          <li><label>Date</label><span>{{ order.date_quoted | date: "%d/%b/%Y"}}</span></li>
+          <li><label>Valid Until</label><span>{{ order.date_quote_valid_until | date: "%d/%b/%Y"}}</span></li>
+          {% else %}
+          <li><label>Date</label><span>{{ order.date_ordered | date: "%d/%b/%Y"}}</span></li>
+          {% if order.order_invoice_dates_differ? %}
+          <li><label>Invoiced</label><span>{{ order.date_invoiced | date: "%d/%b/%Y"}}</span></li>
+          {% endif %}
+          {% if order.date_due %}
+          <li><label>Date Ship By</label><span>{{ order.date_due | date: "%d/%b/%Y"}}</span></li>
+          {% endif %}
+          {% endif %}
+          <li><label>Shipping</label><span>{{ order.shipping_method_name }}</span></li>
+          {% if order.shipping_days %}
+          <li><label>Maximum Delivery Days</label><span>{{ order.shipping_days }}</span></li>
+          {% endif %}
+          {% if order.shipping_tracking_code %}
+          <li><label>Tracking Code</label><span>{{ order.shipping_tracking_code }}</span></li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+    <div id="in_customer">
+      <div class="shipping" style="float: left !important;">
+        {% if (order.get_shipping_detail) and (order.get_shipping_detail.use_shipping_details) %}
+        <h3>Shipping Address</h3>
+        <h4>
+          {{ order.get_shipping_detail.full_name }}{% if order.get_shipping_detail.company %}<br>{{ order.get_shipping_detail.company }}{% endif %}
+        </h4>
+        <span>
+          {{order.get_shipping_detail.address}}<br />
+          {{order.get_shipping_detail.city}}, {{order.get_shipping_detail.state}}
+          {{order.get_shipping_detail.country_name}} {{ order.get_shipping_detail.zip }}
+        </span>
+      </div>
+      {% else %}
+      <div class="shipping">
+        <h3 style="padding-left: 150px !important;">Shipping Address</h3>
+        <h4 style="padding-left: 150px !important;">
+          {{ customer.full_name }}{% if customer.company %}<br>{{ customer.company }}{% endif %}</h4>
+        <span style="padding-left: 150px !important;">
+          {{customer.address}}<br />
+          {{customer.city}}, {{customer.state}} {{customer.country_name}} {{ customer.zip }}
+        </span>
+      </div>
+      {%endif%}
+      <div class="billing">
+        <h3 style="padding-left: 150px !important;">Billing Address</h3>
+        <h4 style="padding-left: 150px !important;">{{ customer.full_name }}{% if customer.company %}
+          {{ customer.company }}{% endif %}</h4>
+        <span style="padding-left: 150px !important;">
+          {{customer.address}}
+          {{customer.city}}, {{customer.state}} {{customer.country_name}} {{ customer.zip }}
+        </span>
+        <span style="padding-left: 150px !important;">
+          PH: {{ customer.phone_number }}<br />
+          Email: {{ customer.email }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  {% if order.has_screens? %}
+  <h2>Screens Used In This Order</h2>
+  {% for screen in order.screens %}
+  <div class="image_row" style="display:block;page-break-inside:avoid;">
+    <ul class="image">
+      {% if screen.has_colorways? %}
+      {% for thumbnail in screen.used_thumbnails_300 %}
+      <li>
+        <label>{{ screen.name }}</label>
+        <img src="{{ thumbnail }}" alt="[]" />
+      </li>
+      {% endfor %}
+      {% else %}
+      <li>
+        <label>{{ screen.name }}</label>
+        <img src="{{ screen.thumbnail }}" alt="[]" />
+      </li>
+      {% endif %}
+    </ul>
+    <div class="details">
+      <ul>
+        <li>
+          <label>Used In</label>
+          {% for used_in in screen.used_ins %}
+          {{ used_in }}<br />
+          {% endfor %}
+        </li>
+        <li>
+          <label>Size</label>
+          {{ screen.size}}
+        </li>
+        <li>
+          <label>Number of Colors</label>
+          {{ screen.number_of_colors}}
+        </li>
+        <li>
+          <label>Colors</label>
+          {% if screen.has_colorways? %}
+          {% assign row_count = 1 %}
+          {% if screen.tracked_colors? %}
+          {% for colors in screen.tracked_colors %}
+          Colorway {{ row_count }}:
+          {% for color in colors[1] %}
+          <span class="colorbox">
+            <span style="background: {{color.color}}; height: 100%;">&nbsp;</span>
+          </span>
+          {{ color.name }}
+          {% endfor %}
+          <br />
+          {% assign row_count = row_count | plus:1%}
+          {% endfor %}
+          {% else %}
+          {% for colors in screen.color_names %}
+          Colorway {{ row_count }}: {{ colors }}<br />
+          {% assign row_count = row_count | plus:1%}
+          {% endfor %}
+          {% endif %}
+          {% else %}
+          {% if screen.tracked_colors? %}
+          {% for colors in screen.tracked_colors %}
+          {% for color in colors[1] %}
+          <span class="colorbox">
+            <span style="background: {{color.color}}; height: 100%;">&nbsp;</span>
+          </span>
+          {{ color.name }}&nbsp;
+          {% endfor %}
+          <br />
+          {% endfor %}
+          {% else %}
+          {{ screen.color_names }}
+          {% endif %}
+          {% endif %}
+        </li>
+      </ul>
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% for item in order.main_items %}
+  <div class="image_row" style="display:block;page-break-inside:avoid;">
+    <h2>
+      {% if (item.supplier_product) and (item.is_not_freeform?) %}
+      {{ item.supplier_product.product_code }} -
+      {% endif %}
+      {{ item.product_name }}
+    </h2>
+    {% if (item.is_freeform?) or (item.is_asi?) %}
+    {% if item.has_extra_options? %}
+    <p>{{ item.extra_options}}</p>
+    {% endif %}
+    {% endif %}
+    <ul class="image">
+      {% for view in item.views %}
+      <li>
+        <label>{{ view.name }}</label>
+        <img src="{{ view.image_url_300}}" alt="[]" />
+      </li>
+      {% endfor %}
+      {% if (item.is_asi?) %}
+      <li>
+        <img src="/manage/asi/image/{{ item.asi_image }}?size=normal" width="300px" alt="[]" />
+      </li>
+      {% endif %}
+    </ul>
+    <div class="details">
+      <ul>
+        {% if item.size_field %}
+        <li>
+          <label>Size / Qty</label>
+          {{ item.sizes}}
+        </li>
+        {% endif %}
+        {% if item.free_form_size %}
+        <li>
+          <label>Size</label>
+          {{ item.free_form_size }}
+        </li>
+        {% endif %}
+        {% for field in item.extra_fields %}
+        <li>
+          <label>{{ field.name }}</label>
+          {{ field.print_text }}
+        </li>
+        {% endfor %}
+        {% if (item.is_freeform?) %}
+        <li>
+          <label>Color</label>
+          {{ item.free_form_color }}
+        </li>
+        {% else %}
+        <li>
+          <label>Colors</label>
+          <ul class="color_list">
+            {% for color in item.chosen_colors %}
+            <li>
+              <span class="colorbox">
+                <span style="background: {{color.color}}; height: 100%;">
+                  {% if color.swatch_image_20 %}
+                  <img src="{{ color.swatch_image_20 }}"
+                    style="position: absolute; width: 100%; height: 100%; top: 0; left: 0">
+                  {% else %}
+                  &nbsp;
+                  {% endif %}
+                </span>
+              </span> {{color.color_name}}
+            </li>
+            {% endfor %}
+          </ul>
+        </li>
+        {% endif %}
+        {% if item.description_html %}
+        <li class="Product_Description">
+          <label>Product Description</label>
+          {{ item.description_html }}
+        </li>
+        {% endif %}
+        {% if item.size_table %}
+        <li>
+          <label>Size Chart</label>
+          {{ item.size_table }}
+        </li>
+        {% endif %}
+        {% if item.comments %}
+        <li>
+          <label>Comments</label>
+          {% for comment in item.comments %}
+          <p>{{ comment.content }}</p>
+          {% endfor %}
+        </li>
+        {% endif %}
+      </ul>
+      {% if item.has_screens? %}
+      <h3>Screen Prints</h3>
+      <ul>
+        {% for process in item.get_screen_printing_processes %}
+        <li>
+          <label>{{ process.full_path }}</label>
+          {{ process.screen.name }}.
+          {% if process.colorway %}
+          Colorway {{ process.colorway }}.
+          {% endif %}
+          {% if process.include_whitebase? %}
+          (including whitebase)
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+  </div>
+  {% if item.using_teamnames %}
+  <div style="display:block;page-break-inside:avoid;">
+    <h2>Teamnames used by {{ item.product_name }}</h2>
+    <table>
+      <tr>
+        <th>#</th>
+        {% if item.size_field %}
+        <th>Size</th>
+        {% endif %}
+        {% for label in item.teamname_headings %}
+        <th>{{ label }}</th>
+        {% endfor %}
+      </tr>
+      {% assign teamname_count = 1%}
+      {% for teamname in item.teamnames %}
+      <tr>
+        <td>{{ teamname_count }}</td>
+        {% if item.size_field %}
+        <td>{{ teamname.size_label }}</td>
+        {% endif %}
+        {% for field in teamname.fields %}
+        <td>{{ field }}</td>
+        {% endfor %}
+      </tr>
+      {% assign teamname_count = teamname_count | plus:1%}
+      {% endfor %}
+    </table>
+  </div>
+  {% endif %}
+
+  {% assign first_element = true %}
+  {% for view in item.views %}
+  {% for area in view.areas %}
+  {% for process in area.processes %}
+  {% for element in process.items %}
+  <div class="image_row" style="display:block;page-break-inside:avoid;">
+    {% if first_element %}
+    <h2>Graphics Used for {{ item.product_name }}</h2>
+    {% assign first_element = false %}
+    {% endif %}
+    <div class="image">
+      <img src="{{ element.thumbnail_300 }}" alt="[]" />
+    </div>
+    <div class="details">
+      <ul>
+        <li><label>Graphic Name</label>{{ element.name }}</li>
+        <li><label>Size</label>{{ element.dimensions }}</li>
+        <li><label>View</label>{{ view.name }}</li>
+        <li><label>Area</label>{{ area.name }}</li>
+        <li><label>Process</label>{{ process.name }}</li>
+        {% for prop in element.process_properties %}
+        <li><label>{{ prop.name }}</label> {{ prop.value }}</li>
+        {% endfor %}
+        {% if element.has_mapped_colors? %}
+        <li>
+          <label>Colors Used</label>
+          <ul class="color_list">
+            {% for color in element.mapped_colors %}
+            <li><span class="colorbox"><span style="background: {{ color.color }}; height: 16px;">&nbsp;</span></span>
+              {{ color.name }} ({{ color.color }})</li>
+            {% endfor %}
+          </ul>
+        </li>
+        {% endif %}
+        {% if element.has_colorway_colors? %}
+        <li>
+          <label>Colorway [{{ element.colorway_name }}] Colors</label>
+          <ul class="color_list">
+            {% for color in element.colorway_colors %}
+            <li><span class="colorbox"><span
+                  style="background: {{ color.hex_color }}; height: 16px;">&nbsp;</span></span>
+              {% if color.brand != blank %}[{{ color.brand }}]: {% endif %}{{ color.description }}
+              ({{ color.code }})</li>
+            {% endfor %}
+          </ul>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+  {% endfor %}
+  {% endfor %}
+  {% endfor %}
+  {% endfor %}
+  {% assign first_attachment = true %}
+  {% for attachment in item.attachments_viewable_customer %}
+  <div class="image_row" style="display:block;page-break-inside:avoid;">
+    {% if first_attachment %}
+    <h2>File Attachments for {{ item.product_name }}</h2>
+    {% assign first_attachment = false %}
+    {% endif %}
+    {% if attachment.image_url %}
+    <div class="image">
+      <img src="{{ attachment.image_url }}" alt="[]" class="attachment_image" />
+    </div>
+    {% else %}
+    <div>
+      <p>{{ attachment.get_file_name }}</p>
+    </div>
+    {% endif %}
+    <div class="details">
+      <ul>
+        <li><label>Name</label>{{ attachment.name }}</li>
+        <li><label>Description</label>{{ attachment.description }}</li>
+      </ul>
+    </div>
+  </div>
+  {% endfor %}
+  {% endfor %}
+  {% if show_fulfillment_details %}
+  <div class="fulfillment_details">
+    <h2>This order has been fulfilled by:</h2>
+    <h1>
+      {% if fulfillment_system.fc_settings.company_name %}{{ fulfillment_system.fc_settings.company_name }}{% endif %}
+      {% if fulfillment_system.fc_settings.company_identification_number %}<br />{{ fulfillment_system.fc_settings.company_identification_number }}{% endif %}
+      <span>
+        {{ fulfillment_system.fc_settings.address }} {{ fulfillment_system.fc_settings.city }},
+        {{ fulfillment_system.fc_settings.state }} {{ fulfillment_system.fc_settings.zip }}<br />
+        {{ fulfillment_system.fc_settings.country_name }}
+      </span>
+      <a href="http://{{ fulfillment_system.primary_domain }}">http://{{ fulfillment_system.primary_domain }}</a>
+    </h1>
+  </div>
+  {% endif %}
+</div>
