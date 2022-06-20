@@ -1,368 +1,467 @@
-{%- layout none -%}
-<meta name="robots" content="noindex">
-<a class="closeShop" href="#"><i class="ad ad-times-r"></i></a>
-{% if product == empty %}
-  {%- assign section_onboarding = true -%}
-{% endif %}
-<div class="quickshopWrap" id="ProductSection-{{ product.id }}" data-section-id="{{ product.id }}" data-section-type="quickshop">
-    {% unless section_onboarding %}
-      {%- assign price = current_variant.price -%}
-      {%- assign available = current_variant.available -%}
-    {% else %}
-      {%- assign price = 1999 -%}
-      {%- assign available = true -%}
-    {% endunless %}
-
-    {%- assign current_variant = product.selected_or_first_available_variant -%}
-
-    <!-- price-->
-    <p class="product-single__price product-single__price-{{ product.id }}{% unless current_variant.available %} product-price--sold-out{% endunless %}">
-      {% if current_variant.compare_at_price > current_variant.price %}
-      <s id="ComparePrice-{{ product.id }}" class="product-price__price">{{ current_variant.compare_at_price | money }}</s>
-      <span class="product-price__price product-price__price-{{ product.id }} product-price__sale product-price__sale--single">
-        <span id="ProductPrice-{{ product.id }}">{{ current_variant.price | money }}</span>            
-      </span>
-      {% else %}
-      <s id="ComparePrice-{{ product.id }}" class="product-price__price hide">{{ current_variant.compare_at_price | money }}</s>
-      <span class="product-price__price product-price__price-{{ product.id }}">
-        <span id="ProductPrice-{{ product.id }}">{{ current_variant.price | money }}</span>
-       </span>
-      {% endif %}
-    </p>
-
-    {% if section_onboarding %}
-    <div class="product-form__item product-form__item--submit{% if product.has_only_default_variant %} product-form__item--no-variants{% endif %}">
-      <button type="submit" name="add" id="AddToCart-{{ product.id }}" disabled class="btn product-form__cart-submit"><span id="AddToCartText-{{ product.id }}">{{ 'products.product.sold_out' | t }}</span></button>
-    </div>
-    {% else %}    
-      {%- capture "form_classes" -%}product-form quickshopForm quickshop-form-{{ product.id }} hidedropdown{%- endcapture %}
-
-      {% form 'product', product, class:form_classes, novalidate: 'novalidate' %}
-        {% unless section_onboarding %}
-            {% unless product.has_only_default_variant %}
-              {% for option in product.options_with_values %}
-              <div class="selector-wrapper js{% if settings.show_swatch %} hide{% endif %}">
-                <label {% if option.name == 'default' %}class="label--hidden" {% endif %}for="SingleOptionSelector-{{ product.id }}-{{ forloop.index0 }}">{{ option.name }}</label>
-                <select class="quickshop-option-selector quickshop-option-selector-{{ product.id }} product-form__input" id="SingleOptionSelector-{{ product.id }}-{{ forloop.index0 }}" data-index="option{{ forloop.index }}">
-                  {% for value in option.values %}
-                  <option value="{{ value | escape }}"{% if option.selected_value == value %} selected="selected"{% endif %}>{{ value }}</option>
-                  {% endfor %}
-                </select>
-              </div>
-              {% endfor %}
-            {% endunless %}
-            <select name="id" id="ProductSelect-{{ product.id }}" class="product-form__variants no-js">
-              {% for variant in product.variants %}
-              {% if variant.available %}
-              <option {% if variant == product.selected_or_first_available_variant %} selected="selected" {% endif %} value="{{ variant.id }}">{{ variant.title }}</option>
-              {% else %}
-              <option disabled="disabled">{{ variant.title }} - {{ 'products.product.sold_out' | t }}</option>
-              {% endif %}
-              {% endfor %}
-            </select>
-        {% endunless %}
-        {% if product.variants.size > 0 and product.variants[0].title != 'Default Title'  %}
-          {% unless product.has_only_default_variant %}
-            {% for option in product.options %}{% include 'swatch' with option %}{% endfor %}
-          {% endunless %}
+{% set_title 'Order Proof' %}
+<div id="in_container">
+  <div style="display: block; page-break-after: avoid;">
+    <div id="in_pre">
+      {% logo 200 200 %}
+      <center style="font-size: 22px; font-weight: bold; color: #000;">
+        {% if is_quote %}
+        RECEVING/PICKING/PACKING LIST
+        {% else %}
+        RECEVING/PICKING/PACKING LIST
         {% endif %}
-        <div class="hide">
-          <input type="number" id="Quantity-{{ product.id }}" name="quantity" value="1" min="1" class="product-form__input" pattern="[0-9]*">
-        </div>
+      </center>
+    </div>
+    <div id="in_header">
+      <div class="details">
+        <h1>
+          {% if from.account.company %}{{ from.account.company }}{% endif %}
+          {% if from.fc_settings.company_identification_number %}<br />{{ from.fc_settings.company_identification_number }}{% endif %}
+          {% if from.account.has_address? %}
+          <span>
+            {{ from.account.address }} {{ from.account.city }}, {{ from.account.state }}
+            {{ from.account.zip }}<br />
+            {{ from.account.country_name }}
+          </span>
+          {% endif %}
+          <a href="http://{{ site.primary_domain }}">http://{{ site.primary_domain }}</a>
+        </h1>
+      </div>
 
-        <div class="product-form__item product-form__item--submit{% if section.settings.enable_payment_button %} product-form__item--payment-button{% endif %}{% if product.has_only_default_variant %} product-form__item--no-variants{% endif %}">
-          <button type="submit" name="add" id="AddToCart-{{ product.id }}" {% unless current_variant.available %}disabled="disabled"{% endunless %} class="btn quickshop-cart">
-            <span id="AddToCartText-{{ product.id }}">{% unless current_variant.available %}{{ 'products.product.sold_out' | t }}{% else %}{{ 'products.product.add_to_cart' | t }}{% endunless %}</span>
-          </button>
-        </div>
-      {% endform %}
+      <div class="order">
+        <ul>
+          {% if is_quote %}
+          <li>
+            <h2><label>Quote #</label><span>{{order.quote_number}}</span></h2>
+          </li>
+          {% elsif order.is_invoiced? %}
+          <li>
+            <h2><label>INVOICE #</label><span>{{order.order_number}}</span></h2>
+          </li>
+          {% else %}
+          <li>
+            <h2><label>Order #</label><span>{{order.order_number}}</span></h2>
+          </li>
+          {% endif %}
+
+          {% if order.has_po_number? %}
+          <li><label>PO Number</label><span>{{ order.po_number }}</span></li>
+          {% endif %}
+          {% if is_quote %}
+          <li><label>Date</label><span>{{ order.date_quoted | date: "%d/%b/%Y"}}</span></li>
+          <li><label>Valid Until</label><span>{{ order.date_quote_valid_until | date: "%d/%b/%Y"}}</span></li>
+          {% else %}
+          <li><label>Date</label><span>{{ order.date_ordered | date: "%d/%b/%Y"}}</span></li>
+          {% if order.order_invoice_dates_differ? %}
+          <li><label>Invoiced</label><span>{{ order.date_invoiced | date: "%d/%b/%Y"}}</span></li>
+          {% endif %}
+          {% if order.date_due %}
+          <li><label>Date Ship By</label><span>{{ order.date_due | date: "%d/%b/%Y"}}</span></li>
+          {% endif %}
+          {% endif %}
+          <li><label>Shipping</label><span>{{ order.shipping_method_name }}</span></li>
+          {% if order.shipping_days %}
+          <li><label>Maximum Delivery Days</label><span>{{ order.shipping_days }}</span></li>
+          {% endif %}
+          {% if order.shipping_tracking_code %}
+          <li><label>Tracking Code</label><span>{{ order.shipping_tracking_code }}</span></li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+    <div id="in_customer">
+      {% if (order.get_shipping_detail) and (order.get_shipping_detail.use_shipping_details) %}
+      <div class="shipping">
+        <h3>Shipping Address</h3>
+        <h4>
+          {{ order.get_shipping_detail.full_name }}{% if order.get_shipping_detail.company %}<br>{{ order.get_shipping_detail.company }}{% endif %}
+        </h4>
+        <span>
+          {{order.get_shipping_detail.address}}<br />
+          {{order.get_shipping_detail.city}}, {{order.get_shipping_detail.state}}
+          {{order.get_shipping_detail.country_name}} {{ order.get_shipping_detail.zip }}
+        </span>
+        <span>
+          PH: {{ customer.phone_number }}<br />
+          Email: {{ customer.email }}
+        </span>
+      </div>
+      {% else %}
+      <div class="shipping">
+        <h3>Shipping Address</h3>
+        <h4>
+          {{ customer.full_name }}{% if customer.company %}<br>{{ customer.company }}{% endif %}</h4>
+        <span>
+          {{customer.address}}<br />
+          {{customer.city}}, {{customer.state}} {{customer.country_name}} {{ customer.zip }}
+          PH: {{ customer.phone_number }}<br />
+          Email: {{ customer.email }}
+        </span>
+      </div>
+      {%endif%}
+    </div>
+  </div>
+
+  {% if order.has_screens? %}
+  <h2>Screens Used In This Order</h2>
+  {% for screen in order.screens %}
+  <div class="image_row" style="display:block;page-break-inside:avoid;">
+    <ul class="image">
+      {% if screen.has_colorways? %}
+      {% for thumbnail in screen.used_thumbnails_300 %}
+      <li>
+        <label>{{ screen.name }}</label>
+        <img src="{{ thumbnail }}" alt="[]" />
+      </li>
+      {% endfor %}
+      {% else %}
+      <li>
+        <label>{{ screen.name }}</label>
+        <img src="{{ screen.thumbnail }}" alt="[]" />
+      </li>
+      {% endif %}
+      <li>
+        <label>Used In</label>
+        {% for used_in in screen.used_ins %}
+        {{ used_in }}<br />
+        {% endfor %}
+      </li>
+      <li>
+        <label>Size</label>
+        {{ screen.size}}
+      </li>
+      <li>
+        <label>Number of Colors</label>
+        {{ screen.number_of_colors}}
+      </li>
+      <li>
+        <label>Colors</label>
+        {% if screen.has_colorways? %}
+        {% assign row_count = 1 %}
+        {% if screen.tracked_colors? %}
+        {% for colors in screen.tracked_colors %}
+        Colorway {{ row_count }}:
+        {% for color in colors[1] %}
+        <span class="colorbox">
+          <span style="background: {{color.color}}; height: 100%;">&nbsp;</span>
+        </span>
+        {{ color.name }}
+        {% endfor %}
+        <br />
+        {% assign row_count = row_count | plus:1%}
+        {% endfor %}
+        {% else %}
+        {% for colors in screen.color_names %}
+        Colorway {{ row_count }}: {{ colors }}<br />
+        {% assign row_count = row_count | plus:1%}
+        {% endfor %}
+        {% endif %}
+        {% else %}
+        {% if screen.tracked_colors? %}
+        {% for colors in screen.tracked_colors %}
+        {% for color in colors[1] %}
+        <span class="colorbox">
+          <span style="background: {{color.color}}; height: 100%;">&nbsp;</span>
+        </span>
+        {{ color.name }}&nbsp;
+        {% endfor %}
+        <br />
+        {% endfor %}
+        {% else %}
+        {{ screen.color_names }}
+        {% endif %}
+        {% endif %}
+      </li>
+    </ul>
+
+    <div class="details">
+      <table style="width:80%; border: solid;">
+        <tr>
+          <th>Qty Received</th>
+          <th>Qty Picked</th>
+          <th>Qty Shipped</th>
+        </tr>
+        <tr>
+          <td>____________</td>
+          <td>____________</td>
+          <td>____________</td>
+        </tr>
+      </table>
+    </div>
+
+
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% for item in order.main_items %}
+  <div class="image_row" style="display:block;page-break-inside:avoid;">
+    <div style="float: left !important;">
+    <h2>
+      {% if (item.supplier_product) and (item.is_not_freeform?) %}
+      {{ item.supplier_product.product_code }} -
+      {% endif %}
+      {{ item.product_name }}
+    </h2>
+    {% if (item.is_freeform?) or (item.is_asi?) %}
+    {% if item.has_extra_options? %}
+    <p>{{ item.extra_options}}</p>
     {% endif %}
-</div>
-{% unless product == empty %}<script type="application/json" id="quickshopJson-{{ product.id }}">{{ product | json }}</script>{% endunless %}
+    {% endif %}
+    <ul class="image">
+      {% for view in item.views %}
+      <li>
+        <label>{{ view.name }}</label>
+        <img src="{{ view.image_url_300}}" alt="[]" />
+      </li>
+      {% endfor %}
+      {% if (item.is_asi?) %}
+      <li>
+        <img src="/manage/asi/image/{{ item.asi_image }}?size=normal" width="300px" alt="[]" />
+      </li>
+      {% endif %}
+      {% if item.size_field %}
+      <li>
+        <label>Size / Qty</label>
+        {{ item.sizes}}
+      </li>
+      {% endif %}
+      {% if item.free_form_size %}
+      <li>
+        <label>Size</label>
+        {{ item.free_form_size }}
+      </li>
+      {% endif %}
+      {% for field in item.extra_fields %}
+      <li>
+        <label>{{ field.name }}</label>
+        {{ field.print_text }}
+      </li>
+      {% endfor %}
+      {% if (item.is_freeform?) %}
+      <li>
+        <label>Color</label>
+        {{ item.free_form_color }}
+      </li>
+      {% else %}
+      <li>
+        <label>Colors</label>
+        <ul class="color_list">
+          {% for color in item.chosen_colors %}
+          <li>
+            <span class="colorbox">
+              <span style="background: {{color.color}}; height: 100%;">
+                {% if color.swatch_image_20 %}
+                <img src="{{ color.swatch_image_20 }}"
+                  style="position: absolute; width: 100%; height: 100%; top: 0; left: 0">
+                {% else %}
+                &nbsp;
+                {% endif %}
+              </span>
+            </span> {{color.color_name}}
+          </li>
+          {% endfor %}
+        </ul>
+      </li>
+      {% endif %}
+      {% if item.size_table %}
+      <li>
+        <label>Size Chart</label>
+        {{ item.size_table }}
+      </li>
+      {% endif %}
 
-<script src="{{ 'quickshop.js' | asset_url }}"></script>
-<script type="text/javascript">
-	theme.productStrings = {
-    	addToCart: {{ 'products.product.add_to_cart' | t | json }},
-    	soldOut: {{ 'products.product.sold_out' | t | json }},
-    	unavailable: {{ 'products.product.unavailable' | t | json }}
-  	}
-    
-var Shopify = Shopify || {};
-Shopify.optionsMap = {};
-Shopify.updateOptionsInSelector = function(selectorIndex) {
-  switch (selectorIndex) {
-    case 0:
-      var key = 'root';
-      var selector = $('.quickshop-option-selector:eq(0)');
-      break;
-    case 1:
-      var key = $('.quickshop-option-selector:eq(0)').val();
-      var selector = $('.quickshop-option-selector:eq(1)');
-      break;
-    case 2:
-      var key = $('.quickshop-option-selector:eq(0)').val();  
-      key += ' / ' + $('.quickshop-option-selector:eq(1)').val();
-      var selector = $('.quickshop-option-selector:eq(2)');
-  }
+      {% if item.has_screens? %}
+      <h3>Screen Prints</h3>
 
-  var initialValue = selector.val();
-  //selector.empty();    
-  var availableOptions = Shopify.optionsMap[key];
-  /*for (var i=0; i<availableOptions.length; i++) {
-    var option = availableOptions[i];
-    var newOption = $('<option></option>').val(option).html(option);
-    selector.append(newOption);
-  }*/
-  $('.quickshopForm .swatch[data-option-index="' + selectorIndex + '"] .swatch-element').each(function() {
-    if ($.inArray($(this).attr('data-value'), availableOptions) !== -1) {
-      $(this).removeClass('soldout').find(':radio').removeAttr('disabled','disabled').removeAttr('checked');
-    } else {
-      $(this).addClass('soldout').find(':radio').removeAttr('checked').attr('disabled','disabled');
-    }
-  });
-  if ($.inArray(initialValue, availableOptions) !== -1) {
-    selector.val(initialValue);
-  }
-  selector.trigger('change');  
+      {% for process in item.get_screen_printing_processes %}
+      <li>
+        <label>{{ process.full_path }}</label>
+        {{ process.screen.name }}.
+        {% if process.colorway %}
+        Colorway {{ process.colorway }}.
+        {% endif %}
+        {% if process.include_whitebase? %}
+        (including whitebase)
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    </div>
+    <div class="details">
+      <table style="width:80%; border: solid;">
+        <tr>
+          <th>Qty Received</th>
+          <th>Qty Picked</th>
+          <th>Qty Shipped</th>
+        </tr>
+        <tr>
+          <td>____________</td>
+          <td>____________</td>
+          <td>____________</td>
+        </tr>
+      </table>
+    </div>
+  </div>
   
-};
-Shopify.linkOptionSelectors = function(product) {
-  for (var i=0; i<product.variants.length; i++) {
-    var variant = product.variants[i];
-    if (variant.available) {
-      Shopify.optionsMap['root'] = Shopify.optionsMap['root'] || [];
-      Shopify.optionsMap['root'].push(variant.option1);
-      Shopify.optionsMap['root'] = Shopify.uniq(Shopify.optionsMap['root']);
-      if (product.options.length > 1) {
-        var key = variant.option1;
-        Shopify.optionsMap[key] = Shopify.optionsMap[key] || [];
-        Shopify.optionsMap[key].push(variant.option2);
-        Shopify.optionsMap[key] = Shopify.uniq(Shopify.optionsMap[key]);
-      }
-      if (product.options.length === 3) {
-        var key = variant.option1 + ' / ' + variant.option2;
-        Shopify.optionsMap[key] = Shopify.optionsMap[key] || [];
-        Shopify.optionsMap[key].push(variant.option3);
-        Shopify.optionsMap[key] = Shopify.uniq(Shopify.optionsMap[key]);
-      }
-    }
-  }
-  Shopify.updateOptionsInSelector(0);
-  if (product.options.length > 1) Shopify.updateOptionsInSelector(1);
-  if (product.options.length === 3) Shopify.updateOptionsInSelector(2);
-  $(".quickshop-option-selector:eq(0)").change(function() {
-    Shopify.updateOptionsInSelector(1);
-    if (product.options.length === 3) Shopify.updateOptionsInSelector(2);
-    return true;
-  });
-  $(".quickshop-option-selector:eq(1)").change(function() {
-    if (product.options.length === 3) Shopify.updateOptionsInSelector(2);
-    return true;
-  });
-};
-
-{% if product.available and product.options.size > 1 %}
-  var $addToCartForm = $('form[action="/cart/add"]');
-  if (window.MutationObserver && $addToCartForm.length) {
-    if (typeof observer === 'object' && typeof observer.disconnect === 'function') {
-      observer.disconnect();
-    }
-    var config = { childList: true, subtree: true };
-    var observer = new MutationObserver(function(){
-      observer.disconnect();
-    });  
-    observer.observe($addToCartForm[0], config);
-  }
-  Shopify.linkOptionSelectors(JSON.parse(document.getElementById('quickshopJson-{{product.id}}').innerHTML));
-{% endif %}
-</script>
-
-
-
-
-
-
-
-
-
-<!------------Next quckview------>
-{% if product == empty %}
-  {%- assign section_onboarding = true -%}
-{% endif %}
-<div id="ProductSection-{{ product.id }}" data-section-id="{{ product.id }}" data-section-type="quickshop">
-  <a class="closeShop" href="#;"><i class="ad ad-times-r"></i></a>
-  <div class="flex product-single">
-    <div class="flex productWrap">      
-    {% unless section_onboarding %}
-      {%- assign price = current_variant.price -%}
-      {%- assign available = current_variant.available -%}
-    {% else %}
-      {%- assign price = 1999 -%}
-      {%- assign available = true -%}
-    {% endunless %}
-
-    {%- assign current_variant = product.selected_or_first_available_variant -%}
-
-    <!-- price-->
-    <p class="product-single__price product-single__price-{{ product.id }}{% unless current_variant.available %} product-price--sold-out{% endunless %}">
-      {% if current_variant.compare_at_price > current_variant.price %}
-      <s id="ComparePrice-{{ product.id }}" class="product-price__price">{{ current_variant.compare_at_price | money }}</s>
-      <span class="product-price__price product-price__price-{{ product.id }} product-price__sale product-price__sale--single">
-        <span id="ProductPrice-{{ product.id }}">{{ current_variant.price | money }}</span>            
-      </span>
-      {% else %}
-      <s id="ComparePrice-{{ product.id }}" class="product-price__price hide">{{ current_variant.compare_at_price | money }}</s>
-      <span class="product-price__price product-price__price-{{ product.id }}">
-        <span id="ProductPrice-{{ product.id }}">{{ current_variant.price | money }}</span>
-       </span>
-      {% endif %}
-    </p>
-
-    {% if section_onboarding %}
-    <div class="product-form__item product-form__item--submit{% if product.has_only_default_variant %} product-form__item--no-variants{% endif %}">
-      <button type="submit" name="add" id="AddToCart-{{ product.id }}" disabled class="btn product-form__cart-submit"><span id="AddToCartText-{{ product.id }}">{{ 'products.product.sold_out' | t }}</span></button>
-    </div>
-    {% else %}    
-      {%- capture "form_classes" -%}product-form quickshopForm quickshop-form-{{ product.id }} hidedropdown{%- endcapture %}
-
-      {% form 'product', product, class:form_classes, novalidate: 'novalidate' %}
-        {% unless section_onboarding %}
-            {% unless product.has_only_default_variant %}
-              {% for option in product.options_with_values %}
-              <div class="selector-wrapper js{% if settings.show_swatch %} hide{% endif %}">
-                <label {% if option.name == 'default' %}class="label--hidden" {% endif %}for="SingleOptionSelector-{{ product.id }}-{{ forloop.index0 }}">{{ option.name }}</label>
-                <select class="quickshop-option-selector quickshop-option-selector-{{ product.id }} product-form__input" id="SingleOptionSelector-{{ product.id }}-{{ forloop.index0 }}" data-index="option{{ forloop.index }}">
-                  {% for value in option.values %}
-                  <option value="{{ value | escape }}"{% if option.selected_value == value %} selected="selected"{% endif %}>{{ value }}</option>
-                  {% endfor %}
-                </select>
-              </div>
-              {% endfor %}
-            {% endunless %}
-            <select name="id" id="ProductSelect-{{ product.id }}" class="product-form__variants no-js">
-              {% for variant in product.variants %}
-              {% if variant.available %}
-              <option {% if variant == product.selected_or_first_available_variant %} selected="selected" {% endif %} value="{{ variant.id }}">{{ variant.title }}</option>
-              {% else %}
-              <option disabled="disabled">{{ variant.title }} - {{ 'products.product.sold_out' | t }}</option>
-              {% endif %}
-              {% endfor %}
-            </select>
-        {% endunless %}
-        {% if product.variants.size > 0 and product.variants[0].title != 'Default Title'  %}
-          {% unless product.has_only_default_variant %}
-            {% for option in product.options %}{% include 'swatch' with option %}{% endfor %}
-          {% endunless %}
+  {% if item.using_teamnames %}
+  <div style="display:block;page-break-inside:avoid;">
+    <h2>Teamnames used by {{ item.product_name }}</h2>
+    <table>
+      <tr>
+        <th>#</th>
+        {% if item.size_field %}
+        <th>Size</th>
         {% endif %}
-        <div class="product-form__item product-form__item--quantity">
-          <label for="Quantity-{{ product.id }}">{{ 'products.product.quantity' | t }}</label>
-          <input type="number" id="Quantity-{{ product.id }}" name="quantity" value="1" min="1" class="product-form__input" pattern="[0-9]*">
-        </div>
+        {% for label in item.teamname_headings %}
+        <th>{{ label }}</th>
+        {% endfor %}
+      </tr>
+      {% assign teamname_count = 1%}
+      {% for teamname in item.teamnames %}
+      <tr>
+        <td>{{ teamname_count }}</td>
+        {% if item.size_field %}
+        <td>{{ teamname.size_label }}</td>
+        {% endif %}
+        {% for field in teamname.fields %}
+        <td>{{ field }}</td>
+        {% endfor %}
+      </tr>
+      {% assign teamname_count = teamname_count | plus:1%}
+      {% endfor %}
+    </table>
+    <table style="width:80%; border: solid;">
+      <tr>
+        <th>Qty Received</th>
+        <th>Qty Picked</th>
+        <th>Qty Shipped</th>
+      </tr>
+      <tr>
+        <td>____________</td>
+        <td>____________</td>
+        <td>____________</td>
+      </tr>
+    </table>
+  </div>
+  {% endif %}
 
-        <div class="product-form__item product-form__item--submit{% if section.settings.enable_payment_button %} product-form__item--payment-button{% endif %}{% if product.has_only_default_variant %} product-form__item--no-variants{% endif %}">
-          <button type="submit" name="add" id="AddToCart-{{ product.id }}" {% unless current_variant.available %}disabled="disabled"{% endunless %} class="btn quickshop-cart">
-            <span id="AddToCartText-{{ product.id }}">{% unless current_variant.available %}{{ 'products.product.sold_out' | t }}{% else %}{{ 'products.product.add_to_cart' | t }}{% endunless %}</span>
-          </button>
-        </div>
-      {% endform %}
+  {% assign first_element = true %}
+  {% for view in item.views %}
+  {% for area in view.areas %}
+  {% for process in area.processes %}
+  {% for element in process.items %}
+  <div class="image_row" style="display:block;page-break-inside:avoid;">
+    {% if first_element %}
+    <h2>Graphics Used for {{ item.product_name }}</h2>
+    {% assign first_element = false %}
     {% endif %}
+    <div class="image">
+      <img src="{{ element.thumbnail_300 }}" alt="[]" />
+
+      <ul>
+        <li><label>Graphic Name</label>{{ element.name }}</li>
+        <li><label>Size</label>{{ element.dimensions }}</li>
+        <li><label>View</label>{{ view.name }}</li>
+        <li><label>Area</label>{{ area.name }}</li>
+        <li><label>Process</label>{{ process.name }}</li>
+        {% for prop in element.process_properties %}
+        <li><label>{{ prop.name }}</label> {{ prop.value }}</li>
+        {% endfor %}
+        {% if element.has_mapped_colors? %}
+        <li>
+          <label>Colors Used</label>
+          <ul class="color_list">
+            {% for color in element.mapped_colors %}
+            <li><span class="colorbox"><span style="background: {{ color.color }}; height: 16px;">&nbsp;</span></span>
+              {{ color.name }} ({{ color.color }})</li>
+            {% endfor %}
+          </ul>
+        </li>
+        {% endif %}
+        {% if element.has_colorway_colors? %}
+        <li>
+          <label>Colorway [{{ element.colorway_name }}] Colors</label>
+          <ul class="color_list">
+            {% for color in element.colorway_colors %}
+            <li><span class="colorbox"><span
+                  style="background: {{ color.hex_color }}; height: 16px;">&nbsp;</span></span>
+              {% if color.brand != blank %}[{{ color.brand }}]: {% endif %}{{ color.description }}
+              ({{ color.code }})</li>
+            {% endfor %}
+          </ul>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+    <div class="details">
+      <table style="width:80%; border: solid;">
+        <tr>
+          <th>Qty Received</th>
+          <th>Qty Picked</th>
+          <th>Qty Shipped</th>
+        </tr>
+        <tr>
+          <td>____________</td>
+          <td>____________</td>
+          <td>____________</td>
+        </tr>
+      </table>
+    </div>
   </div>
-  </div>
-  </div>
-{% unless product == empty %}<script type="application/json" id="quickshopJson-{{ product.id }}">{{ product | json }}</script>{% endunless %}
-
-{% schema %}
-  {
-    "name": "Qick Shop",
-    "settings": []
-  }
-{% endschema %}
-
-
-
-
-<!-------------Swatch-->
-
-{% capture colorSwatches %}
-
-{% assign found_option = false %}
-{% assign is_color = false %}
-{% assign is_size = false %}
-{% assign option_index = 0 %}
-
-{% for option in product.options %}
-    {% if option == swatch %}
-      {% assign found_option = true %}
-      {% assign option_index = forloop.index0 %}
-      {% assign downcased_option = swatch | downcase %}
-      {% if downcased_option contains 'color' or downcased_option contains 'colour' or downcased_option contains 'couleur' or downcased_option contains 'farbe' %}
-        {% assign is_color = true %}
-      {% endif %}
-	{% if downcased_option contains 'size' or downcased_option contains 'rozmiar' or downcased_option contains 'talla' or downcased_option contains 'taille' or downcased_option contains 'tamaño' or downcased_option contains 'größe' %}
-        {% assign is_size = true %}
-      {% endif %}
+  {% endfor %}
+  {% endfor %}
+  {% endfor %}
+  {% endfor %}
+  {% assign first_attachment = true %}
+  {% for attachment in item.attachments_viewable_customer %}
+  <div class="image_row" style="display:block;page-break-inside:avoid;">
+    {% if first_attachment %}
+    <h2>File Attachments for {{ item.product_name }}</h2>
+    {% assign first_attachment = false %}
     {% endif %}
-{% endfor %}
-
-
-
-
-
-
-
-<div class="swatch clearfix option{{option_index |plus: 1}}" data-option-index="{{ option_index }}">
-    <label class="header">{{ swatch }}
-<!--       : <span class="slVariant"></span> -->
-      {% if settings.sizechart_link %}
-        {% if is_size %}
-        	<!--a href="#sizechart" class="mfp sizelink" data-effect="mfp-zoom-in" ><i class="ad ad-ruler"></i> {{ 'products.product.size_chart' | t}}</a-->
-      <a href="#" class="open-popup mfp sizelink" data-id="popup_default"><i class="ad ad-ruler"></i>Size Chart</a>
-
-		<div id="popup_default" class="popup size_chart_modal">
-                                      <div class="popup-overlay"></div>
-                                      <div class="popup-content">
-                                     <a href="#" class="close-popup" data-id="popup_default">&times;</a>
-   
-                                               <p> {{ pages.size-chart.content }}</p>
-    
-                                          </div>
-                                                 </div>
-                             
-
-        {% endif %} 
-      {% endif %}                                   
-    </label>
-    {% assign values = '' %}
-     {% for variant in shsd_product_variants %}
-      {% assign value = variant.options[option_index] %}
-      {% unless values contains value %}
-        {% assign values = values | join: ',' %}
-        {% assign values = values | append: ',' | append: value %} 
-        {% assign values = values | split: ',' %}
-        {% assign colorname = value | handleize %}
-          <div data-value="{{ value | escape }}" class="swatch-element{% unless variant.available %} soldout{% endunless %}">
-            <input class="swatchInput hide" id="{{product.id}}-{{ option_index }}-{{ value | handle }}" data-var="{{ value | handle }}" type="radio" name="option-{{ option_index }}" value="{{ value | escape }}"{% if option.selected_value == value %} checked{% endif %} />
-            {% if is_color %}
-            {% if settings.sw_color_type == "color" %}
-            <label class="swatchLbl color {{settings.sw_color_size}} {{settings.sw_color_style}} swt{{value | handle}}" for="{{product.id}}-{{ option_index }}-{{ value | handle }}" style="background-color:{{ value | handle }};"></label>
-            <span class="tooltip-label">{{ value }}</span>
-            {% else %}
-            <label class="swatchLbl lazyload color {{settings.sw_color_size}} {{settings.sw_color_style}}" for="{{product.id}}-{{ option_index }}-{{ value | handle }}"
-                   data-bgset="{% include 'swatch-bg', image: variant.image %}" data-sizes="auto" data-parent-fit="contain"
-                   style="background-image:url({{ 'spacer.png' | asset_img_url: 'master' }});"></label>
-            <span class="tooltip-label">{{ value }}</span>
-            {% endif %}
-            {% else %}
-            <label class="swatchLbl {{settings.sw_color_style}}{% if settings.var_style %} square-only{% endif %}" for="{{product.id}}-{{ option_index }}-{{ value | handle }}">{{ value }}</label>            	
-            {% endif %}
-          </div>
-      {% endunless %}
-    {% endfor %}
+    {% if attachment.image_url %}
+    <div class="image">
+      <img src="{{ attachment.image_url }}" alt="[]" class="attachment_image" />
+    </div>
+    {% else %}
+    <div>
+      <p>{{ attachment.get_file_name }}</p>
+    </div>
+    {% endif %}
+    <ul>
+      <li><label>Name</label>{{ attachment.name }}</li>
+    </ul>
+    <div class="details">
+      <table style="width:80%; border: solid;">
+        <tr style="border: none !important;">
+          <th>Qty Received</th>
+          <th>Qty Picked</th>
+          <th>Qty Shipped</th>
+        </tr>
+        <tr>
+          <td>____________</td>
+          <td>____________</td>
+          <td>____________</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  {% endfor %}
+  {% endfor %}
+  {% if show_fulfillment_details %}
+  <div class="fulfillment_details">
+    <h2>This order has been fulfilled by:</h2>
+    <h1>
+      {% if fulfillment_system.fc_settings.company_name %}{{ fulfillment_system.fc_settings.company_name }}{% endif %}
+      {% if fulfillment_system.fc_settings.company_identification_number %}<br />{{ fulfillment_system.fc_settings.company_identification_number }}{% endif %}
+      <span>
+        {{ fulfillment_system.fc_settings.address }} {{ fulfillment_system.fc_settings.city }},
+        {{ fulfillment_system.fc_settings.state }} {{ fulfillment_system.fc_settings.zip }}<br />
+        {{ fulfillment_system.fc_settings.country_name }}
+      </span>
+      <a href="http://{{ fulfillment_system.primary_domain }}">http://{{ fulfillment_system.primary_domain }}</a>
+    </h1>
+  </div>
+  {% endif %}
 </div>
-
-
-
-
-{% endcapture %}
-{{colorSwatches | strip_newlines | remove: "  " | remove: "	" }}
