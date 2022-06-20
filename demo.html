@@ -1,6 +1,6 @@
 {% set_title 'Order Proof' %}
 <div id="in_container">
-    <div style="display: block; page-break-after: always;">
+    <div style="display: block; page-break-after: avoid;">
         <div id="in_pre">
             {% logo 200 200 %}
             <center style="font-size: 36px; font-weight: bold; color: #eee;">
@@ -69,25 +69,8 @@
             </div>
         </div>
         <div id="in_customer">
-            <div class="shipping">
-                <h3>Shipping Address</h3>
-                <h4>{{ order.get_shipping_detail.full_name }}{% if order.get_shipping_detail.company %}<br>{{ order.get_shipping_detail.company }}{% endif %}</h4>
-                <span>
-                    {{order.get_shipping_detail.address}}<br />
-                    {{order.get_shipping_detail.city}}, {{order.get_shipping_detail.state}}
-                    {{order.get_shipping_detail.country_name}} {{ order.get_shipping_detail.zip }}
-                </span>
-                <!-- <span>
-                    {{customer.address}}<br/>
-                    {{customer.city}}, {{customer.state}} {{customer.country_name}} {{ customer.zip }}
-                </span>
-                <span>
-                    PH: {{ customer.phone_number }}<br/>
-                    Email: {{ customer.email }}
-                </span> -->
-            </div>
-            {% if (order.get_shipping_detail) and (order.get_shipping_detail.use_shipping_details) %}
-            <div class="shipping">
+            <div class="shipping" style="float: left !important;">
+                {% if (order.get_shipping_detail) and (order.get_shipping_detail.use_shipping_details) %}
                 <h3>Shipping Address</h3>
                 <h4>{{ order.get_shipping_detail.full_name }}{% if order.get_shipping_detail.company %}<br>{{ order.get_shipping_detail.company }}{% endif %}
                 </h4>
@@ -98,19 +81,29 @@
                 </span>
             </div>
             {% else %}
-            <div class="billing">
-                <h3>Billing Address</h3>
-                <h4>{{ customer.full_name }}{% if customer.company %}<br>{{ customer.company }}{% endif %}</h4>
-                <span>
-                    {{customer.address}}
-                    <span>
-                        PH: {{ customer.phone_number }}<br/>
-                        Email: {{ customer.email }}
-                    </span>
+            <div class="shipping">
+                <h3 style="padding-left: 150px !important;">Shipping Address</h3>
+                <h4 style="padding-left: 150px !important;">
+                    {{ customer.full_name }}{% if customer.company %}<br>{{ customer.company }}{% endif %}</h4>
+                <span style="padding-left: 150px !important;">
+                    {{customer.address}}<br />
                     {{customer.city}}, {{customer.state}} {{customer.country_name}} {{ customer.zip }}
                 </span>
             </div>
             {%endif%}
+            <div class="billing">
+                <h3 style="padding-left: 150px !important;">Billing Address</h3>
+                <h4 style="padding-left: 150px !important;">{{ customer.full_name }}{% if customer.company %}
+                    {{ customer.company }}{% endif %}</h4>
+                <span style="padding-left: 150px !important;">
+                    {{customer.address}}
+                    {{customer.city}}, {{customer.state}} {{customer.country_name}} {{ customer.zip }}
+                </span>
+                <span style="padding-left: 150px !important;">
+                    PH: {{ customer.phone_number }}<br />
+                    Email: {{ customer.email }}
+                </span>
+            </div>
         </div>
     </div>
 
