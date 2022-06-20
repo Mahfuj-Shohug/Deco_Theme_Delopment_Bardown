@@ -1,0 +1,891 @@
+<style>
+    .container {
+        width: 100% !important;
+    }
+
+    #status {
+        position: relative !important;
+        top: 30px !important;
+        padding: 24px 48px;
+        background-size: 60% !important;
+        height: auto;
+        background-position-y: 50% !important;
+    }
+
+    .colorbox span {
+        width: 100% !important;
+        display: inline-block !important;
+    }
+
+    #in_customer h3 {
+        border-bottom: none;
+    }
+
+    #in_totals .notes {
+        float: left;
+        width: 48%;
+        margin-left: 0;
+        border: 1px solid #FD860E;
+        padding: 1%;
+    }
+
+    h5 {
+        font-size: 12px;
+        font-weight: 600;
+        color: #FD860E;
+        margin: 0;
+    }
+
+    h6 {
+        font-size: 12px;
+        font-weight: 600;
+        color: initial;
+        margin: 0;
+    }
+
+    .orange {
+        border-color: #f8d2bb !important;
+        border-left: 1px solid transparent !important;
+        border-right: 1px solid transparent !important;
+        border-top: 1px solid transparent !important;
+    }
+
+    th.solidgrey {
+        border-top: 1px solid #e4e4e6 !important;
+        border-bottom: 1px solid #e4e4e6 !important;
+        border-left: 1px solid #e4e4e6 !important;
+        text-align: center;
+    }
+
+    th.solidgrey:last-child {
+        border-right: 1px solid #e4e4e6 !important;
+    }
+
+    td.solidgrey {
+        border-top: none !important;
+        border-bottom: 1px solid #e4e4e6 !important;
+        border-left: 1px solid #e4e4e6 !important;
+        text-align: center;
+    }
+
+    td.solidgrey:last-child {
+        border-right: 1px solid #e4e4e6 !important;
+    }
+
+    th.solidorg {
+        border-top: 1px solid #FD860E !important;
+        border-bottom: 1px solid #FD860E !important;
+        border-left: 1px solid #FD860E !important;
+        text-align: center;
+    }
+
+    th.solidorg:last-child {
+        border-right: 1px solid #FD860E !important;
+    }
+
+    td.solidorg {
+        border-top: none;
+        border-bottom: 1px solid #FD860E !important;
+        border-left: 1px solid #FD860E !important;
+        text-align: center;
+    }
+
+    td.solidorg:last-child {
+        border-right: 1px solid #FD860E !important;
+    }
+
+    td li {
+        list-style: none;
+    }
+</style>
+
+
+
+{% set_title 'Quote' %}
+<div id="in_container">
+    <div style="display: block; page-break-after: always;">
+        <div id="in_pre">
+
+            <div class="header">
+                <div style="width: 100%;position: absolute;">
+                    <center style="font-size: 24px; font-weight: bold; color: #eee; margin-left: 3%;">
+                        {% if is_quote %}
+                        QUOTE
+                        {% elsif order.is_invoiced? %}
+                        INVOICE
+                        {% else %}
+                        ORDER
+                        {% endif %}
+                    </center>
+                </div>
+
+                <div style="width: 100%;position: absolute; margin-right:5%; margin-top: 10%;">
+                    <center>
+                        {% if order.cancelled? %}
+                        <div id="status" class="red">Cancelled</div>
+                        {% elsif is_quote %}
+                        {% if order.rejected? %}
+                        <div id="status" class="red">Rejected</div>
+                        {% elsif order.expired? %}
+                        <div id="status" class="red">Expired</div>
+                        {% else %}
+                        <div id="status" class="green">Awaiting Approval</div>
+                        {% endif %}
+                        {% else %}
+                        {% if order.get_approval_amount_balance > 0 %}
+                        <div id="status" class="red">{% if order.approval_requires_deposit? %}Deposit{% else %} Payment
+                            {%endif%} required: <br>{{ order.get_approval_amount_balance | simple_price_format }}</div>
+                        {% elsif order.awaiting_cod_payment? %}
+                        <div id="status" class="red">C.O.D</div>
+                        {% elsif order.get_approval_amount_balance_without_unconfirmed > 0 %}
+                        <div id="status" class="red">Awaiting Deposit <br>Confirmation</div>
+                        {% elsif order.balance > 0 %}
+                        {% if order.is_invoiced? %}
+                        <div id="status" class="red">Balance Due: <br>{{ order.balance | simple_price_format }}</div>
+                        {% else %}
+                        <div id="status" class="red">Balance: <br>{{ order.balance | simple_price_format }}</div>
+                        {%endif%}
+                        {% elsif order.confirmed_balance > 0 %}
+                        <div id="status" class="red">Awaiting Payment <br>Confirmation</div>
+                        {% else %}
+                        <div id="status" class="green">Paid In Full</div>
+                        {% endif %}
+                        {%endif %}
+                    </center>
+                </div>
+
+                <div style="width:45%; float:right; margin-top: 2%">
+                    <div class="table-compo table-responsive" style="width:100%">
+                        <table align="left" class="table table-bordered"
+                            style="padding-left:10%;text-align:left;width:100%;">
+                            <tbody>
+                                <tr>
+                                    <td class="orange">
+                                        <h6>{% if is_quote %}QUOTE #: {% elsif order.is_invoiced? %}INVOICE #:
+                                            {% else %}ORDER #: {%endif %}{{order.order_number}}</h6>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="orange">
+                                        <h6>PO #:
+                                            {% if order.has_po_number? %}{{ order.po_number }}{% else %}NONE{% endif %}
+                                        </h6>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="orange">
+                                        <h5>ESTIMATED SHIP DATE:
+                                            {% if order.date_due %}{{ order.date_due | date: "%b %d, %Y"}}{% else %}TBD{% endif %}
+                                        </h5>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>SHIPPED DATE:
+                                        {% if order.date_shipped %}{{ order.date_shipped | date: "%b %d, %Y" }}{% else %}TBD{% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>TRACKING:
+                                        {% if order.shipping_tracking_code %}{{ order.shipping_tracking_code }}{% else %}TBD{% endif %}
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div style="width:30%;float:left;text-align:left;">
+                    {% if site.primary_domain contains 'garmentdecor.com' %}
+                    <a href="index.html"><img alt="Garment Decor"
+                            src="http://garmentdecor.com/rshared/ssc/i/ri/652187/f/f/t/0/image.png" align="right"
+                            style="padding-right: 2%;" /></a>
+                    <div style="width: 100%;text-align: right;display: inline-block;padding-top: 10px;">
+                        {{ site.account.phone_number }}<br>
+                        <a href="mailto:{{ site.account.email }}?Subject=Question%20about%20order%20{{order.order_number}}"
+                            target="_top">{{ site.account.email }}</a></div>
+                    {% else %}
+                    {% logo 150 150 %}
+                    {% endif %}
+                </div>
+            </div>
+            <!--end header -->
+        </div>
+        <!--end in_pre -->
+        <div style="padding-left: 2%;">
+            <h3>Bardown Sports Inc.</h3><br>
+            <h4>1610 Greenbriar Drive Oakville, Ontario L6M 1Y2</h4>
+            <h4>Canada</h4><br>
+            <h4><a>info@gobardown.com</a></h4>
+            <h4>Tax Number: HST/GST #. 802156455</h4>
+        </div><br><br>
+
+        <div id="in_customer">
+            <div class="billing" style="padding-left:1%;">
+                <h3>BILL TO:</h3>
+                <h4>{{ customer.full_name }}{% if customer.company %}<br>{{ customer.company }}{% endif %}</h4>
+                <span>
+                    {{customer.address}}<br />
+                    {{customer.city}}, {{customer.state}} {{customer.country_name}} {{ customer.zip }}
+                </span>
+                <span>
+                    PH: {{ customer.phone_number }}<br />
+                    Email: {{ customer.email }}
+                </span>
+            </div>
+            {% if (order.get_shipping_detail) and (order.get_shipping_detail.use_shipping_details) %}
+            <div class="shipping">
+                <h3>SHIP TO:</h3>
+                <h4>{{ order.get_shipping_detail.full_name }}{% if order.get_shipping_detail.company %}<br>{{ order.get_shipping_detail.company }}{% endif %}
+                </h4>
+                <span>
+                    {{order.get_shipping_detail.address}}<br />
+                    {{order.get_shipping_detail.city}}, {{order.get_shipping_detail.state}}
+                    {{order.get_shipping_detail.country_name}} {{ order.get_shipping_detail.zip }}
+                </span>
+                <span>
+                    PH: {{ order.get_shipping_detail.phone_number }}<br />
+                </span>
+            </div>
+            {% else %}
+            <div class="shipping">
+                <h3>Shipping Address</h3>
+                <h4>{{ customer.full_name }}{% if customer.company %}<br>{{ customer.company }}{% endif %}</h4>
+                <span>
+                    {{customer.address}}<br />
+                    {{customer.city}}, {{customer.state}} {{customer.country_name}} {{ customer.zip }}
+                </span>
+            </div>
+            {%endif%}
+        </div>
+
+
+        <div id="heading">
+            <table class="table table-bordered" style="width:100%; background:white;">
+                <col width="10%" />
+                <col width="20%" />
+                <col width="10%" />
+                <col width="15%" />
+                <col width="15%" />
+                <col width="10%" />
+                <col width="20%" />
+                <tbody>
+                    <tr>
+                        <th class="solidorg">SALESPERSON</th>
+                        <th class="solidorg">JOB NAME</th>
+                        <th class="solidorg">SHIPPING</th>
+                        <th class="solidorg">{% if is_quote %}QUOTE DATE{% else %}ORDER DATE{%endif %}</th>
+                        <th class="solidorg">INVOICE DATE</th>
+                        <th class="solidorg">TERMS</th>
+                        <th class="solidorg">
+                            <h5>ESTIMATED SHIP DATE</h5>
+                        </th>
+                    </tr>
+                    <tr>
+                        <td class="solidorg">
+                            {% if order.sales_team_member !="" %}{{order.sales_team_member}}{% else %}Unassigned{% endif %}
+                        </td>
+                        <td class="solidorg">{% if order.job_name !="" %}{{order.job_name}}{% else %}N/A{% endif %}</td>
+                        <td class="solidorg">
+                            {% if order.shipping_method_name %}{{order.shipping_method_name}}{% else %}TBD{% endif %}
+                        </td>
+                        <td class="solidorg">
+                            {% if is_quote %}{{ order.date_quoted | date: "%b %d, %Y" }}{% else %}{{ order.date_ordered | date: "%b %d, %Y" }}{%endif %}
+                        </td>
+                        <td class="solidorg">
+                            {% if order.date_invoiced %}{{ order.date_invoiced | date: "%b %d, %Y" }}{% else %}TBD{% endif %}
+                        </td>
+                        <td class="solidorg">
+                            {% if (order.account_term.name) and (order.account_term.name == "Custom Terms") %}{{order.account_term.name}}<br>{{ order.account_term.description }}
+                            {% elsif order.account_term.name %}{{order.account_term.name}}{% else %}Pre-Pay {% endif %}
+                        </td>
+                        <td class="solidorg">
+                            <h5>{% if order.date_due %}{{ order.date_due | date: "%b %d, %Y"}}{% else %}TBD{% endif %}
+                            </h5>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+
+        <div id="in_body" style="padding-top: 10px;">
+            <table class="hundred">
+                <thead>
+                    <tr>
+
+                        <th class="solidgrey">Product Name</th>
+                        <th class="solidgrey">Product View</th>
+                        <th class="solidgrey">Color</th>
+                        <th class="solidgrey">Size / Qty</th>
+                        <th class="text_right solidgrey">Unit Price</th>
+                        {% if order.use_extra_line_item_columns %}
+                        {% if order.has_a_discount %}
+                        <th class="text_right solidgrey">Discount</th>
+                        <th class="text_right solidgrey">Disc Unit Price</th>
+                        {% endif%}
+
+                        {% endif %}
+                        <th class="text_right solidgrey">Qty</th>
+                        <th class="text_right solidgrey">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% assign colspan = 5 %}
+                    {% if order.use_extra_line_item_columns %}
+                    {% if order.has_a_discount %}
+                    {% assign colspan = colspan | plus:2%}
+                    {% endif%}
+                    {% if order.has_taxes_against_items %}
+                    {% assign colspan = colspan | plus:1%}
+                    {% endif %}
+                    {% endif %}
+
+                    {% assign row_count = 1%}
+                    {% for item in order.main_items %}
+                    {% if (item.is_divider?) %}
+                    <tr>
+                        <td class="text_left divider solidgrey" style="text-align:left" colspan="{{colspan | plus:2}}">
+                            {{ item.product_name }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+
+                        <td class="text_left solidgrey" style="text-align:left" {% unless item.has_sizes_or_colors? %}
+                            colspan="3" {% endunless %}>
+                            {{ row_count }}.
+                            {% if (item.supplier_product) and (item.is_not_freeform?) %}
+                            {{ item.supplier_product.product_code }} -
+                            {% endif %}
+                            {{ item.product_name }}
+                            {% if item.product_based? %}
+
+                            {% else %}
+                            {% if item.has_extra_options? %} : {% endif %}
+                            {% endif %}
+                            <br />{{ item.extra_options}}
+                            <br /><br />
+                            Design: {{item.number}}
+                        </td>
+                        <td class="text_left solidgrey" style="width:75px">
+                            {% if (item.is_freeform?) %}
+                            <label style="display: inline-block;width: 100%;">N/A</label>
+                            {% else %}
+                            {% for view in item.views %}
+                            <label style="display: inline-block;width: 100%;">{{ view.name }}</label>
+                            <img src="{{ view.image_url_100}}" width="75px" alt="[]" />
+                            {% endfor %}
+                            {% endif %}
+                        </td>
+
+
+                        {% if item.has_sizes_or_colors? %}
+                        {% if (item.is_freeform?) %}
+                        <td class="text_left solidgrey">{{ item.free_form_color }}</td>
+                        {% else %}
+                        <td class="text_left solidgrey">{{ item.color_names}}</td>
+                        {% endif %}
+                        {% if item.free_form_size %}
+                        <td class="text_left solidgrey">{{ item.free_form_size }}</td>
+                        {% else %}
+                        <td class="text_left solidgrey">{{ item.sizes}}</td>
+                        {% endif %}
+                        {% endif %}
+                        <td class="text_right solidgrey">{{ item.currency_unit_price | simple_price_format }}</td>
+                        {% if order.use_extra_line_item_columns %}
+                        {% if order.has_a_discount %}
+                        <td class="text_right solidgrey">
+                            {{ item.discount_percent }}%
+                        </td>
+                        <td class="text_right solidgrey">{{ item.currency_disc_unit_price | simple_price_format}}</td>
+                        {% endif %}
+                        
+                        {% endif %}
+
+                        <td class="text_right solidgrey">{{ item.qty }}</td>
+                        <td class="text_right qty solidgrey" style="text-align:right">
+                            {{ item.currency_unit_price * item.qty | simple_price_format}}</td>
+
+                    </tr>
+                    {% assign row_count = row_count | plus:1%}
+                    {% endif %}
+                    {% endfor %}
+
+                </tbody>
+                <tfoot>
+                    <tr class="total">
+                        <td colspan="{{colspan}}" class="text_right">Subtotal</td>
+                        <td colspan="2" class="text_right">{{ order.main_item_price_ex_tax | simple_price_format }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <div id="in_totals">
+            <div class="notes">
+                {% if order.invoice_note == blank && order.customer_notes == blank %}
+                <h3>Notes</h3>
+                N/A
+                {% endif %}
+                {% if order.invoice_note != blank %}
+                <h3>Notes</h3>
+                {% elsif order.customer_notes != blank %}
+                <h3>Notes</h3>
+                {% endif %}
+                {% if order.invoice_note %}
+                <p>{{ order.formatted_invoice_note }}</p>
+                {% endif %}
+                {% if order.customer_notes %}
+                <p>{{ order.formatted_customer_notes }}</p>
+                {% endif %}
+            </div>
+
+
+
+
+            <div class="totals">
+                {% unless order.extra_charges == empty %}
+                <table class="hundred extras">
+                    <thead>
+                        <tr>
+                            <th class="text_left">Extra Charges</th>
+                            <th class="text_center">Qty</th>
+                            <th class="text_center">Unit</th>
+                            {% if order.has_a_discount %}
+                            <th class="text_center">Disc Unit</th>
+                            {% else %}
+                            <th></th>
+                            {% endif %}
+                            
+
+                            <th class="text_center">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order.extra_charges %}
+                        <tr>
+                            <td class="text_left">{{ item.product_name }}<br />{{ item.associated_items_string }}</td>
+                            <td class="text_center">{{ item.qty }}</td>
+                            <td class="text_center">{{ item.currency_unit_price | simple_price_format }}</td>
+                            {% if order.has_a_discount %}
+                            <td class="text_center">{{ item.currency_discount | simple_price_format }}</td>
+                            {% else %}
+                            <td class="text_center"></td>
+                            {% endif %}
+                            <!-- {% if order.has_taxes_against_items %}
+                            <td class="text_center">{{ item.tax | simple_price_format}}</td>
+                            {% else %} -->
+                            <td class="text_center"></td>
+                            {% endif %}
+                            <td class="text_right qty">{{ currency_full_price | simple_price_format}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr class="total">
+                            <td colspan="5" class="text_right">Total Additional Fees</td>
+                            <td class="text_right">{{ order.extra_charge_price | simple_price_format }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                {% endunless %}
+                <table class="hundred text_right totals_table">
+                    <tbody>
+                        <tr>
+                            <td class="heading">Shipping</td>
+                            <td class="qty">{{ order.currency_total_shipping_price | simple_price_format }}</td>
+                        </tr>
+                        {% if order.rush_order_fee_id %}
+                        <tr>
+                            <td class="heading">Rush Order Fee</td>
+                            <td class="qty">{{ order.rush_order_cost | simple_price_format }}</td>
+                        </tr>
+                        {% endif %}
+                        {% unless order.has_taxes_against_items %}
+                        <tr>
+
+                            {% endunless %}
+                            {% if  order.uses_coupon? %}
+                        <tr>
+                            <td class="heading">Coupon Discount</td>
+                            <td class="qty">{{ order.coupon_discount_inc_tax | simple_price_format }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if order.final_discount_inc_tax > 0 %}
+                        <tr>
+                            <td class="heading">Discount</td>
+                            <td class="qty">{{ order.final_discount_inc_tax | simple_price_format }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if order.final_credit > 0 %}
+                        <tr>
+                            <td class="heading">Total Credit</td>
+                            <td class="qty">{{ order.final_credit | simple_price_format}}</td>
+                        </tr>
+                        {% endif %}
+                        {% if order.has_taxes_against_items %}
+                        {% for tax_group in order.tax_groups %}
+                        <tr>
+                            <td class="heading">
+                                {{ tax_group.name }} included
+                                {% if tax_group.show_included_taxes? %}({{tax_group.taxes_label}}){% endif %}
+                            </td>
+                            <td class="qty">{{ tax_group.get_total | simple_price_format }}</td>
+                        </tr>
+                        <tr class="total">
+                            <td class="heading">Grand Total</td>
+                            <td class="qty">{{ order.grand_total | simple_price_format}}</td>
+                        </tr>
+                        {% endfor %}
+                        {% endif %}
+                        {% if order.on_hold? && order.approval_requires_deposit? %}
+                        <tr class="total">
+                            <td class="heading">Deposit Required</td>
+                            <td class="qty">{{ order.get_approval_amount | simple_price_format}}</td>
+                        </tr>
+                        {% endif %}
+                        {% if  order.uses_gift_certificate? %}
+                        <tr>
+                            <td class="heading">Gift Certificate</td>
+                            <td class="qty">{{ order.currency_certificate_total | simple_price_format }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if order.account_credit_used > 0 %}
+                        <tr>
+                            <td class="heading">Account Credit</td>
+                            <td class="qty">{{ order.account_credit_used | simple_price_format}}</td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <td class="heading">Payments</td>
+                            <td class="qty">{{ order.final_paid | simple_price_format}}</td>
+                        </tr>
+                    </tbody>
+
+                    <tfoot>
+                        <tr>
+                            <td class="heading">Balance Due</td>
+                            <td>{{ order.confirmed_balance | simple_price_format}}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+
+            </div>
+        </div>
+
+    </div>
+
+
+    <div id="in_header">
+
+        <div style="float:left; width: 64%;">
+            <p><span style="background-color: #ffff00;">NEW PAYMENT METHODS CAD FUNDS</span> </p>
+            <p>1. E-transfers: please use accounting@gobardown.com</p>
+            <p>2. Cheques: Payables to Bardown Sports Incorporated , please mail to 1610 Greenbriar Drive Oakville L6M
+                1Y2</p>
+            <p>3. Wire Payments <span style="background-color: #ffff00;">CAD FUNDS</span></p>
+            <p>Bank Name: THE BANK OF NOVA SCOTIA</p>
+            <p>Bank Address:1500 Upper Middle RD. W. &amp; THIRD LINE #10 Oakville, ON L6M 3G3. Canada</p>
+            <p>Transit: 47696<br />Institution Number:002 <br />Account Number:1721011&nbsp;&nbsp;</p>
+        </div>
+
+        <div style="float:right;width: 30%">
+            <p><span style="background-color: #ffff00;">PAYMENT FOR USD FUNDS:</span></p>
+            <p>Transit: 47696 <br />Institution: 002 <br />
+                USD ACCOUNT: 1543911 <br />
+                SWIFT CODE: NOSCCATT&nbsp;</p>
+            <p><strong>Thank you for your business</strong></p>
+        </div>
+        <div style="float:left;">
+            <h4 style="font-size:20px;">"Upon receipt of your order, if you are not completely satisfied, please contact
+                customer service team within 5 days of purchase for a refund or replacement."</h4>
+        </div>
+    </div>
+    <!-- proof section -->
+
+    {% if order.is_invoiced? %}
+    {% else %}
+    <div id="artmemo" class="container">
+        <div style="width: 47%;border: 1px solid #FD860E;float: left;padding: 1%;height: 100px;">
+            <p><span style="color:red;font-weight:bold;text-transform:uppercase;">WHAT'S THE NEXT STEP?</span>
+                <br>After you approve your quote, our artwork success team will review the details of
+                your project and send you an artwork approval e-mail where you will be required to
+                approve before we proceed with production.</p>
+        </div>
+        <div style="width: 47%;border: 1px solid #FD860E;float: right;padding: 1%;height: 100px;">
+            <p><span style="font-weight:bold;text-transform:uppercase;">WHAT IS THE ARTWORK APPROVAL?</span>
+                <br>It is a complete summary of your project details including the ink or thread colors we’ll
+                be using, the artwork size, and the placement. Our production team refers to this when
+                printing your order and it’s important to review and approve to ensure the success of
+                your project.</p>
+        </div>
+    </div>
+    {% endif %}
+
+    {% for item in order.main_items %}
+    {% for view in item.views %}
+    {% for area in view.areas %}
+    {% for process in area.processes %}
+    <div class=" order-dtails__table" style="page-break-after: auto;page-break-inside: avoid;">
+
+        <div id="proofhead" style="background: #FD860E;padding: 5px 1%;margin: 20px 0 10px 0;">
+            <h5 style="color: white;margin: 0;">Design: {{item.number}}</h5>
+        </div>
+
+        <div class="col-md-6"
+            style="width: 250px;height:262px;float: left; padding:5px;border: 1px solid #FD860E;text-align:center;page-break-inside: avoid;">
+            <span style="font-weight:600;background-color:white;padding:0 5px 0 5px;">MOCKUP {{view.name}}:
+                {{area.name}}<img alt="[]" src="{{ view.image_url_600}}" width="250px" align="middle"
+                    style="max-height:250px;" /></span>
+        </div>
+
+        <div class="col-md-6"
+            style="width: 250px; height:262px;float: right; padding:5px;border: 1px solid #FD860E;text-align:center;background-color: {{ area.design_background_color.to_html }};page-break-inside: avoid;">
+            <span style="font-weight:600;background-color:white;padding:0 5px 0 5px;">DESIGN {{view.name}}:
+                {{area.name}}</span><img src="{{ process.image_url_600_no_bg }}" alt="[]"
+                style="background-image: none;max-height:250px;" />
+        </div>
+
+
+
+        <table class="table table-bordered" style="width:100%;padding-top:10px;">
+            <colgroup>
+                <col width="10%" />
+                <col width="20%" />
+                <col width="20%" />
+                <col width="20%" />
+                <col width="30%" />
+            </colgroup>
+            <thead>
+                <tr>
+                    <th class="solidorg">DESIGN</th>
+                    <th class="solidorg">METHOD</th>
+                    <th class="solidorg">SIZE</th>
+                    <th class="solidorg">LOCATION</th>
+                    <th class="solidorg">COLORS</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    {% for area in view.areas %}
+                    {% for process in area.processes %}
+
+                    <td class="solidorg">
+                        <h5>{{item.number}}</h5>
+                    </td>
+                    <td class="solidorg"><span style="font-weight:600">{{process.name}}</span></td>
+                    <td class="solidorg"><span style="font-weight:600">{{ process.bounding_box_size }}</span></td>
+                    <td class="solidorg"><span style="font-weight:600">{{view.name}}: {{area.name}}</span></td>
+                    {% if process.name contains 'Screen' %}
+                    {% if process.has_tracked_colors? %}
+                    <td class="solidorg"><span style="font-weight:600">Color Count:
+                            {{process.screen.number_of_colors}}</span><br />
+
+                    </td>
+                    {% else %}
+                    <td class="solidorg"><span style="font-weight:600">Color Count:
+                            {{ process.number_of_colors }}</span><br />
+                        {{ process.color_names }}
+                    </td>
+                    {% endif %}
+                    {% endif %}
+                    {% if process.name contains 'DTG' %}
+                    <td class="solidorg"><span style="font-weight:600">Full Color</span></td>
+                    {% endif %}
+
+                    {% if process.name contains 'Embroidery' %}
+                    <td class="solidorg">
+                        {% for element in process.items %}
+                        {% for prop in element.process_properties %}
+                        <li><span style="font-weight:600">{{ prop.name }} {{ prop.value }}</span></li>
+                        {% endfor %}
+                        {% if element.has_mapped_colors? %}
+                        <table style="margin-top:5px; vertical-align: text-top;">
+                            {% for color in element.mapped_colors %}
+                            <tr>
+                                <td style="background: {{color.color}}; color: black; padding: 3px;">
+                                    <span style="background-color:white;padding:0 5px 0 5px;">{{ color.name }}3</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                        {% else %}
+                        EMB File Ready.
+                        {% endif %}
+                        {% endfor %}
+                    </td>
+                    {% endif %}
+
+                    {% if process.name contains 'Transfer' %}
+                    <td class="solidorg">N/A</td>
+                    {% endif %}
+
+                </tr>
+                {% endfor %}
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr style="background: #eee;">
+                    <td class="solidorg">{{item.supplier_product.product_code}}</td>
+                    <td class="solidorg">{{item.product_name}}</td>
+                    <td class="solidorg">
+                        {% for color in item.chosen_colors %}
+                        {{color.color_name}}
+                        <span class="colorbox" style="width: 100%;">
+                            <span style="background: {{color.color}}; height: 100%; width:100%;">
+                                {% if color.swatch_image_20 %}
+                                <img src="{{ color.swatch_image_20 }}"
+                                    style="position: absolute; width: 100%; height: 100%; top: 0; left: 0">
+                                {% else %}
+                                &nbsp;
+                                {% endif %}
+                            </span>
+                        </span>
+                        {% endfor %}
+
+                    </td>
+                    <td class="solidorg">Qty: {{item.qty}}</td>
+                    <td class="solidorg">{{item.sizes}}</td>
+                </tr>
+            </tfoot>
+        </table>
+        <div class="space" style="height: 10px;">&nbsp;</div>
+
+        {% assign first_attachment = true %}
+        {% for attachment in item.attachments_viewable_production %}
+        <div class="image_row" style="display:block;page-break-inside:avoid;">
+            {% if first_attachment %}
+            <h3>File Attachments for {{item.number}} {{ item.product_name }}</h3>
+            {% assign first_attachment = false %}
+            {% endif %}
+            {% if attachment.image_url %}
+            <div class="image">
+                <img src="{{ attachment.image_url }}" alt="[]" class="attachment_image" />
+            </div>
+            {% else %}
+            <div>
+                <p>{{ attachment.get_file_name }}</p>
+            </div>
+            {% endif %}
+            <div class="details">
+                <ul>
+                    <li><label>Name</label>{{ attachment.name }}</li>
+                    <li><label>Description</label>{{ attachment.description }}</li>
+                </ul>
+            </div>
+        </div>
+        {% endfor %}
+
+
+        {% if process.name contains 'Transfer' %}
+        {% if item.using_teamnames %}
+        <div style="display:block;page-break-inside:avoid;">
+            <h3>Teamnames used by {{item.number}} {{ item.product_name }}</h3>
+            <table id="names_numbers">
+                <tr>
+                    <th>#</th>
+                    {% if item.size_field %}
+                    <th>Size</th>
+                    {% endif %}
+                    {% for label in item.teamname_headings %}
+                    <th>{{ label }}</th>
+                    {% endfor %}
+                </tr>
+                {% assign teamname_count = 1%}
+                {% for teamname in item.teamnames %}
+                <tr>
+                    <td>{{ teamname_count }}</td>
+                    {% if item.size_field %}
+                    <td>{{ teamname.size_label }}</td>
+                    {% endif %}
+                    {% for field in teamname.fields %}
+                    <td>{{ field }}</td>
+                    {% endfor %}
+                </tr>
+                {% assign teamname_count = teamname_count | plus:1%}
+                {% endfor %}
+            </table>
+        </div>
+        {% endif %}
+        {% endif %}
+    </div>
+
+
+    {% endfor %}
+    {% endfor %}
+    {% endfor %}
+    {% endfor %}
+
+
+
+
+
+    {% for item in order.main_items %}
+    {% if item.is_freeform? %}
+    {% assign first_attachment = true %}
+    {% for attachment in item.attachments_viewable_customer %}
+
+    <section class="spacing" id="comments" style="page-break-before: always;">
+        <div id="proofhead" style="background: #FD860E;padding: 5px 1%;margin: 20px 0 10px 0;">
+            <h5 style="color: white;margin: 0;">Design: {{item.number}}</h5>
+        </div>
+
+        <div class=" order-dtails__table" style="page-break-after: auto;page-break-inside: avoid;">
+
+            <div class="col-md-6"
+                style="width: 250px;height:262px;float: left; padding:5px;border: 1px solid #FD860E;text-align:center;page-break-inside: avoid;">
+                <span style="font-weight:600;background-color:white;padding:0 5px 0 5px;">MOCKUP
+                    {{ attachment.name }}<img alt="[]" src="{{ attachment.image_url }}" width="250px" align="middle"
+                        style="max-height:250px;" /></span>
+            </div>
+
+            <table class="table table-bordered" style="width:100%;padding-top:10px;">
+                <colgroup>
+                    <col width="10%" />
+                    <col width="20%" />
+                    <col width="20%" />
+                    <col width="30%" />
+                    <col width="20%" />
+
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th class="solidorg">DESIGN</th>
+                        <th class="solidorg">NAME</th>
+                        <th class="solidorg">DESCRIPTION</th>
+                        <th colspan=2 class="solidorg">COMMENTS</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="solidorg">
+                            <h5>{{item.number}}</h5>
+                        </td>
+                        <td class="solidorg"><span style="font-weight:600">{{ attachment.name }}</span></td>
+                        <td class="solidorg"><span style="font-weight:600">{{ attachment.description }}</span></td>
+                        <td colspan=2 class="solidorg"><span style="font-weight:600">{{ item.extra_options }}</span>
+                        </td>
+
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr style="background: #eee;">
+                        <td class="solidorg">Free Form</td>
+                        <td class="solidorg">{{item.product_name}}</td>
+                        <td class="solidorg">{{ item.free_form_color }}</td>
+                        <td class="solidorg">Qty: {{item.qty}}</td>
+                        <td class="solidorg">{% if item.free_form_size %}
+                            {{ item.free_form_size }} {% else %}
+                            {{ item.sizes}} {% endif %} </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <div class="space" style="height: 10px;">&nbsp;</div>
+        {% endfor %}
+        {% endif %}
+        {% endfor %}
+
+        <!-- end proof section -->

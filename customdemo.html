@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html class="wf-loading">
+  <head>
+    <style>
+    
+    .dn-inline-header .dn-shopping-cart-icon-over-right-container:before, .dn-inline-header .dn-currency-selector{
+    	color: #fff !important;
+    }
+    .dn-nav-cart{
+    	width: 30px;
+        height: 30px;
+        display: flex;
+        border: 1px solid;
+        align-items: center;
+        justify-content: center;
+        background: #000000;
+        border-radius: 40px;
+    }
+   
+    .dn-image-text-container{
+          height:150% !important;
+    }
+    .dn-site .titlebar  {
+    background-color: #cc2647;
+    color: #fff;
+    padding: 4px 4px 4px 4px;
+    text-align: center!important;
+    
+    }   
+    .dn-site-logo .dn-lazyload .dn-loaded{
+        max-width: 100%;
+        max-height: 100px;
+    }
+    .top-bar {
+    position: relative;
+    height: 100%;
+    
+    align-items: center;
+    background: #ffffff;
+}
+.top-bar .logo {
+    text-align: left;
+    overflow: hidden;
+    
+}
+.top-bar .logo h1 {
+    margin: 0 0 0 0;
+    color: #E81C2E;
+    font-size: 50px;
+    line-height: 50px;
+    
+}
+.top-bar .logo h1 span {
+    color: #000;
+}
+.top-bar .logo img {
+    max-width: 100%;
+    max-height: 60px;
+}
+.top-bar .top-bar-item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+.top-bar .top-bar-icon {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+    border-radius: 40px;
+}
+.top-bar .top-bar-icon i {
+    margin: 0;
+    color: #ffffff;
+    font-size: 12px;
+}
+.top-bar .top-bar-text {
+    padding-left: 15px;
+}
+.top-bar .top-bar-text h3 {
+    margin: 0 0 5px 0; 
+    font-size: 14px;
+    font-weight: 600;
+}
+.top-bar .top-bar-text p {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 400;
+}
+.dn-behaviour h4{
+	padding-top: 5px !important;
+}
+.custom_nav{
+    padding-top: 10px;
+    padding-bottom:10px;
+    border-top: solid  #cc2647;
+    
+}
+@media(max-width: 992px) {
+	 .container-fluid{
+     	padding-left: 0px !important;
+    	padding-right: 0px !important;
+     }
+     
+     header .dn-small-header{
+     	display: block !important;
+     }
+     .custom_nav {
+        display:none;
+    }
+    
+     
+     
+}
+    </style>
+<[{"snippet":"system_style_sheets"}]>
+<[{"snippet":"system_head_js"}]>
+  <title><[{"snippet":"title"}]></title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"> 
+        
+  <!-- CSS Libraries -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+  <[{"snippet":"system_head_meta_tags"}]>
+<[{"snippet":"favicon"}]>
+  </head>
+  <body class="dn-site">
+    <header>
+   <[{"snippet":"pos_message_header"}]>
+      <p class="titlebar">
+     <a style="color:#fff; text-decoration:none; font-size:14px"; href="mailto:mikaela@gobardown.com">For Customer Support Email Us</a>
+    </p>
+       <div class="top-bar">
+        <div class="container-fluid" style='padding-left: 100px; padding-right: 100px;'>
+          <div class="row">
+            <div class="col-lg-12 col-md-12 d-none d-lg-block">
+              <div class="row">
+                <div class="col-3" style="text-align: left;">
+                  <div class="logo">
+                    <div id="site-logo-large">
+                      <[{"widget":{"settings":{"size":"large"},"code":"site_logo","id":"large_logo"}}]>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-3" style="text-align: right;">
+                  <div class="top-bar-item">
+                    <div class="top-bar-icon">
+                      <i class="fa fa-phone-alt"></i>
+                    </div>
+                    <div class="top-bar-text">
+                      <h3>Call Us</h3>
+                      <p>+012 345 6789</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-3" style="text-align: right;">
+                  <div class="top-bar-item">
+                    <div class="top-bar-icon">
+                      <i class="far fa-envelope"></i>
+                    </div>
+                    <div class="top-bar-text">
+                      <h3>Email Us</h3>
+                      <p>mikaela@gobardown.com</p>
+                    </div>
+                    </div>
+                </div>
+                <div class="col-3" style="text-align: right;">
+                  <div class="top-bar-item">
+      <div class="dn-other"><!--
+     --><div class="dn-other-nav-container">
+          <nav class="dn-other-nav"><!--
+ --><nav class="dn-other-nav">
+      <div class="dn-nav-cart"><span id='cart_link'><div class="dn-shopping-cart-icon-over-right-container" 
+            onclick="dnInlinePopup(this, 'dn_cart_over_right_popup', { valign:'none', halign: 'none', backgroundClass: 'dn-cart-over-right', delayBackground:400});"><span 
+            data-cart-items="<[{"variable":"CART.QTY"}]>"><[{"variable":"CART.QTY"}]></span></div></span>
+                </div>   
+            <!--
+ --><[{"snippet":"nav_user"}]> 
+            <!--
+ -->
+              <div class="dn-nav-search"><div class="dn-search-icon" onclick="dnInlinePopup(this, 'dn_search_popup_pt', { valign: 'none', halign:'none', backgroundClass: 'dn-faded-bg' });"></div>   
+    
+            
+    
+            
+            
+            <!--
+ --><!--
+--><script type="text/javascript">
+runFuncOnLoad(function() {
+  dnUpdateCurrencySelectorLabel();
+  dnPrepareCurrencySelectorDropdown();
+});
+</script>
+</div><!--
+ --><div class="dn-nav-phone"><div class="dn-phone-number"><span><[{"variable":"STORE.PHONE"}]></span></div></div><!--
+ -->
+</div><!-- 
+--></nav>
+                    
+             </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+ 
+<div class="dn-small-header">
+  <div class="dn-small-logo-container" id="site-logo-small">
+  <[{"widget":{"settings":{"size":"small"},"code":"site_logo","id":"small_logo"}}]>
+</div>
+      <div class="dn-nav-phone"><a href="tel:<[{"variable":"STORE.PHONE"}]>" class="dn-phone-icon"></a>
+</div>
+      <div class="dn-nav-search"><div class="dn-search-icon" onclick="dnInlinePopup(this, 'dn_search_popup_pt', { valign: 'none', halign:'none', backgroundClass: 'dn-faded-bg' });"></div>
+</div>
+  <div class="dn-menu-icon dn-behaviour" data-behaviour="dropdownMenu" data-dropdown-menu-id="main_nav_dropdown" data-dropdown-menu-class="dn-nav-dropdown-container dn-nav-main-dropdown-container dn-nav-main-dropdown-small"><div class="dn-dropdown-anchor"></div></div>
+</div>
+ <div class="container-fluid custom_nav" >
+                    <div class="row">
+                        <div class="col">
+                            <div class="dn-header-nav-container dn-behaviour" data-behaviour="horizontalFill">
+                                <[{"snippet":"nav_main_large"}]>
+                            
+                            </div>
+                        </div>
+                    </div>
+                </div>       
+</header>
+		<div class="dn-content">
+  <[{"snippet":"alerts"}]>
+  <[{"snippet":"application"}]>
+</div>
+                                                                                                                                                                                                                                                                                                  <footer dynamic_area="footer"><!-- remove the 'dynamic_area' attribute if you want to change the html of the footer -->
+      <div  class="dn-page-section dn-page-section-footer1 dn-page-section-cols-1 dn-page-section-spacing-default dn-page-section-margin-top-none dn-page-section-margin-bottom-none dn-limit-content-width dn-limit-background-width dn-use-page-margin" id="dn_section_footer1" style="z-index: 2;"><div class="dn-page-section-margin"><div class="dn-page-section-content"><div class="dn-padding-container" id="dn_s_pc_footer1"><!--
+  --><div class="dn-page-columns-container"><!--
+  --></div><!--
+--></div></div></div><div class="dn-background-container">
+  <div >
+    <div class="dn-background-image-container"></div>
+  </div>
+</div>
+</div>
+    <[{"snippet":"pos_message_footer"}]>
+    
+  </footer>
+        <div class="dn-inline-popup dn-shopping-cart-icon-over-right-popup" id="dn_cart_over_right_popup">
+  <[{"widget":{"settings":{"thumbnail_size":100,"show_name":true,"show_summary":0,"empty_message":"Your cart is empty","empty_quote_message":"Your quote is empty","show_price":true,"show_checkout_link":true,"show_thumbnail":true,"show_item_link":true},"code":"shopping_cart","id":"cart"}}]>
+</div>
+    <div class="dn-inline-popup dn-search-page-top" id="dn_search_popup_pt"><!--
+--><form action="/search/results" method="get"><!--
+ --><div class="dn-search-field-container"><!--
+   --><input type="text" name="query" id="search" class="dn-search-field"><!--
+ --></div><!--
+ --><input type="submit" value="as" style="display:none;" /><div class="dn-btn dn-btn-std dn-styled" onclick="dnSubmitForm(this);"><div class="dn-btn-valign"></div><div class="dn-btn-icon"></div><div class="dn-btn-label"><span>Search</span></div></div><!--
+ --><div class="dn-close" onclick="dnCloseInlinePopup();"></div><!--
+--></form><!--
+--></div>
+      <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+ <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

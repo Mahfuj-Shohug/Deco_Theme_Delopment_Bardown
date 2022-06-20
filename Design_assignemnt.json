@@ -1,0 +1,60 @@
+database.users {
+    user_id: ObjectID('A113'),
+    name: 'David P Petrosky',
+    address: [
+        {
+            street: '3649 Liberty Avenue',
+            city: 'Pomona',
+            state: 'CA'
+        }
+    ]
+},
+{
+    user_id: ObjectID('B225'),
+    name: 'Jennifer M Phillips',
+    address: [
+        {
+        street: '1726 Bingamon Branch Road',
+        city: 'HOLTSVILLE',
+        state: 'NY'
+        }
+    ]
+}
+
+
+database.cars {
+    car_id: ObjectID('1A2B')
+    car_make: "Tesla",
+    car_model: "Model S",
+    car_location: "32°63'19.7"
+    N 82° 38 '17.6"W"
+},
+{
+    car_id: ObjectID('8A3C')
+    car_make: "Mercedes",
+    car_model: "Benz GLE 350",
+    car_location: "40°56'23.0"
+    N 72° 48 '35.9"W"
+}
+
+database.rides {
+    ride_id: ObjectID('3DF07GO1'),
+    user_id: ObjectID('A113'),
+    car_id: ObjectID('1A2B'),
+    pickup_location: "32°63'19.7"
+    N 82° 38 '17.6"W",
+    pickup_dt_time: "2022-02-23T01:46:40-05:00",
+    dropoff_location: "41°51'28.4"
+    N 87° 46 '21.7"W",
+    dropoff_dt_time: "2022-02-23T02:36:39-05:00"
+},
+{
+    ride_id: ObjectID('G5OG7A44'),
+    user_id: ObjectID('B225'),
+    car_id: ObjectID('8A3C'),
+    pickup_location: "40°56'23.0"
+    N 72° 48 '35.9"W",
+    pickup_dt_time: "2022-02-25T19:57:26-05:00",
+    dropoff_location: "",
+    dropoff_dt_time: ""
+}

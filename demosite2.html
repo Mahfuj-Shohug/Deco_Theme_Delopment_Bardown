@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html class="wf-loading">
+
+<head>
+  <style>
+    .dn-site .titlebar {
+      background-color: #cc2647;
+      color: #fff;
+      padding: 4px 4px 4px 4px;
+      text-align: center !important;
+    }
+
+    .dn-inline-header .dn-large-header {
+      padding-left: 100px;
+      padding-right: 100px;
+      border-bottom: solid 5px;
+    }
+
+    .dn-blank-product-hierarchy-container ul {
+      padding-left: 0rem !important;
+    }
+  </style>
+  <[{"snippet":"system_style_sheets"}]>
+    <[{"snippet":"system_head_js"}]>
+      <title>
+        <[{"snippet":"title"}]>
+      </title>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+      <[{"snippet":"system_head_meta_tags"}]>
+        <[{"snippet":"favicon"}]>
+</head>
+
+<body class="dn-site">
+  <header>
+    <[{"snippet":"pos_message_header"}]>
+      <p class="titlebar">
+        <a style="color:#fff; text-decoration:none; font-size:14px" ; href="mailto:mikaela@gobardown.com">For Customer
+          Support Email Us</a>
+      </p>
+      <div class="dn-large-header-container">
+        <div class="dn-large-header">
+          <div class="dn-search-nav-container">
+            <nav class="dn-other-nav">
+              <div class="dn-nav-phone">
+                <div class="dn-phone-number"><span>
+                    <[{"variable":"STORE.PHONE"}]>
+                  </span></div>
+              </div>
+              <!-- <div class="dn-nav-currency"><div class="dn-currency-selector dn-behaviour" data-behaviour="dropdownMenu" data-dropdown-menu-id="currency_select_list_dropdown"><span id="dn_currency_glyph"></span><span id="dn_currency_code"></span><div class="dn-dropdown-anchor"></div></div> -->
+              <div class="dn-nav-search">
+                <div class="dn-search-icon"
+                  onclick="dnInlinePopup(this, 'dn_search_popup_dd', { valign:'below', halign: 'rights'});"></div>
+              </div>
+            </nav>
+          </div>
+          <div class="dn-logo-container dn-centered">
+            <div id="site-logo-large">
+              <[{"widget":{"settings":{"size":"large"},"code":"site_logo","id":"large_logo"}}]>
+            </div>
+          </div>
+          <div class="dn-other-nav-container">
+            <nav class="dn-other-nav">
+              <[{"snippet":"nav_user"}]>
+                <div class="dn-nav-cart"><span id='cart_link'>
+                    <div class="dn-shopping-cart-icon-over-right-container"
+                      onclick="dnInlinePopup(this, 'dn_cart_over_right_popup', { valign:'none', halign: 'none', backgroundClass: 'dn-cart-over-right', delayBackground:400});">
+                      <span data-cart-items="<[{" variable":"CART.QTY"}]>"><[{"variable":"CART.QTY"}]></span></div>
+                  </span>
+                </div>
+                <script type="text/javascript">
+                  runFuncOnLoad(function () {
+                    dnUpdateCurrencySelectorLabel();
+                    dnPrepareCurrencySelectorDropdown();
+                  });
+                </script>
+          </div>
+          </nav>
+        </div>
+      </div>
+      <[{"snippet":"nav_main_large"}]>
+        </div>
+        <div class="dn-small-header">
+          <div class="dn-small-logo-container" id="site-logo-small">
+            <[{"widget":{"settings":{"size":"small"},"code":"site_logo","id":"small_logo"}}]>
+          </div>
+          <div class="dn-nav-phone"><a href="tel:<[{" variable":"STORE.PHONE"}]>" class="dn-phone-icon"></a>
+          </div>
+          <div class="dn-nav-search">
+            <div class="dn-search-icon"
+              onclick="dnInlinePopup(this, 'dn_search_popup_pt', { valign: 'none', halign:'none', backgroundClass: 'dn-faded-bg' });">
+            </div>
+          </div>
+          <div class="dn-menu-icon dn-behaviour" data-behaviour="dropdownMenu" data-dropdown-menu-id="main_nav_dropdown"
+            data-dropdown-menu-class="dn-nav-dropdown-container dn-nav-main-dropdown-container dn-nav-main-dropdown-small">
+            <div class="dn-dropdown-anchor"></div>
+          </div>
+        </div>
+  </header>
+  <div class="dn-content">
+    <[{"widget":{"code":"breadcrumbs","id":"breadcrumbs"}}]>
+      <[{"snippet":"alerts"}]>
+        <[{"snippet":"application"}]>
+  </div>
+  <footer dynamic_area="footer">
+    <!-- remove the 'dynamic_area' attribute if you want to change the html of the footer -->
+    <div
+      class="dn-page-section dn-page-section-footer1 dn-page-section-cols-1 dn-page-section-spacing-default dn-page-section-margin-top-none dn-page-section-margin-bottom-none dn-limit-content-width dn-limit-background-width dn-use-page-margin"
+      id="dn_section_footer1" style="z-index: 2;">
+      <div class="dn-page-section-margin">
+        <div class="dn-page-section-content">
+          <div class="dn-padding-container" id="dn_s_pc_footer1">
+            <div class="dn-page-columns-container">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="dn-background-container">
+        <div>
+          <div class="dn-background-image-container"></div>
+        </div>
+      </div>
+    </div>
+    <[{"snippet":"pos_message_footer"}]>
+
+  </footer>
+  <div class="dn-inline-popup dn-search-dropdown" id="dn_search_popup_dd">
+    <form action="/search/results" method="get">
+      <input type="text" name="query" id="search" class="dn-search-field">
+      <input type="submit" value="as" style="display:none;" />
+      <div class="dn-btn dn-btn-std dn-styled" onclick="dnSubmitForm(this);">
+        <div class="dn-btn-valign"></div>
+        <div class="dn-btn-icon"></div>
+        <div class="dn-btn-label"><span>Search</span></div>
+      </div>
+    </form>
+  </div>
+  <div class="dn-inline-popup dn-shopping-cart-icon-over-right-popup" id="dn_cart_over_right_popup">
+    <[{"widget":{"settings":{"thumbnail_size":100,"show_name":true,"show_summary":0,"empty_message":"Your cart is
+      empty","show_price_with_name":true,"empty_quote_message":"Your quote is
+      empty","show_price":true,"show_checkout_link":true,"show_thumbnail":true,"show_item_link":true},"code":"shopping_cart","id":"cart"}}]>
+  </div>
+  <div class="dn-inline-popup dn-search-page-top" id="dn_search_popup_pt">
+    <form action="/search/results" method="get">
+      <div class="dn-search-field-container">
+       <input type="text" name="query" id="search" class="dn-search-field">
+      </div>
+      <input type="submit" value="as" style="display:none;" />
+      <div class="dn-btn dn-btn-std dn-styled" onclick="dnSubmitForm(this);">
+        <div class="dn-btn-valign"></div>
+        <div class="dn-btn-icon"></div>
+        <div class="dn-btn-label"><span>Search</span></div>
+      </div>
+    </form>
+  </div>
+</body>
+
+</html>
