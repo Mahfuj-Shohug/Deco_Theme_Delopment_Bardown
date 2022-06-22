@@ -11,21 +11,7 @@
                 {% endif %}
             </center>
         </div>
-        <div id="in_header">
-            <div class="details">
-                <h1>
-                    {% if from.account.company %}{{ from.account.company }}{% endif %}
-                    {% if from.fc_settings.company_identification_number %}<br />{{ from.fc_settings.company_identification_number }}{% endif %}
-                    {% if from.account.has_address? %}
-                    <span>
-                        {{ from.account.address }} {{ from.account.city }}, {{ from.account.state }}
-                        {{ from.account.zip }}<br />
-                        {{ from.account.country_name }}
-                    </span>
-                    {% endif %}
-                </h1>
-            </div>
-            <div class="order">
+        <div class="order">
                 <ul>
                     {% if is_quote %}
                     <li>
@@ -48,17 +34,43 @@
                     <li><label>Date</label><span>{{ order.date_quoted | date: "%d/%b/%Y"}}</span></li>
                     <li><label>Valid Until</label><span>{{ order.date_quote_valid_until | date: "%d/%b/%Y"}}</span></li>
                     {% else %}
-                    <li><label>Date</label><span>{{ order.date_ordered | date: "%d/%b/%Y"}}</span></li>
-                    {% endif %}
-                    <li><label>Shipping</label><span>{{ order.shipping_method_name }}</span></li>
-                    {% if order.shipping_days %}
-                    <li><label>Maximum Delivery Days</label><span>{{ order.shipping_days }}</span></li>
-                    {% endif %}
-                    {% if order.shipping_tracking_code %}
-                    <li><label>Tracking Code</label><span>{{ order.shipping_tracking_code }}</span></li>
+                    <li><label>Date</label><span>{{ "now" | date: "%d/%b/%Y"}}</span></li>
                     {% endif %}
                 </ul>
             </div>
+        <div id="in_header">
+            <div id="in_customer">
+                {% if (order.get_shipping_detail) and (order.get_shipping_detail.use_shipping_details) %}
+                <div class="shipping">
+                  <h3>Shipping Address</h3>
+                  <h4>
+                    {{ order.get_shipping_detail.full_name }}{% if order.get_shipping_detail.company %}<br>{{ order.get_shipping_detail.company }}{% endif %}
+                  </h4>
+                  <span>
+                    {{order.get_shipping_detail.address}}<br />
+                    {{order.get_shipping_detail.city}}, {{order.get_shipping_detail.state}}
+                    {{order.get_shipping_detail.country_name}} {{ order.get_shipping_detail.zip }}
+                  </span>
+                  <span >
+                    PH: {{ customer.phone_number }}<br />
+                    Email: {{ customer.email }}
+                  </span>
+                </div>
+                {% else %}
+                <div class="shipping">
+                  <h3 >Shipping Address</h3>
+                  <h4 >
+                    {{ customer.full_name }}{% if customer.company %}<br>{{ customer.company }}{% endif %}</h4>
+                  <span >
+                    {{customer.address}}<br/>
+                    {{customer.city}}, {{customer.state}} {{customer.country_name}} {{ customer.zip }}
+                    PH: {{ customer.phone_number }}<br />
+                    Email: {{ customer.email }}
+                  </span>
+                </div>
+                {%endif%}
+              </div>
+
         </div>
         <div id="in_customer">
             {% if (order.get_shipping_detail) and (order.get_shipping_detail.use_shipping_details) %}
@@ -75,16 +87,6 @@
                 <span>
                     PH: {{ customer.phone_number }}
             </div>
-            {% else %}
-            <div class="shipping">
-                <h3>Shipping Address</h3>
-                <h4>
-                    {{ customer.full_name }}{% if customer.company %}<br>{{ customer.company }}{% endif %}</h4>
-                <span>
-                    {{customer.address}}<br />
-                    {{customer.city}}, {{customer.state}} {{customer.country_name}} {{ customer.zip }} <br>
-                    PH: {{ customer.phone_number }}
-            </div>
             {%endif%}
         </div>
     </div>
@@ -98,13 +100,13 @@
             {% for thumbnail in screen.used_thumbnails_300 %}
             <li>
                 <label>{{ screen.name }}</label>
-                <img  style="height: 70px !important; width: 70px !important;" src="{{ thumbnail }}" alt="[]" />
+                <img style="height: 70px !important; width: 70px !important;" src="{{ thumbnail }}" alt="[]" />
             </li>
             {% endfor %}
             {% else %}
             <li>
                 <label>{{ screen.name }}</label>
-                <img  style="height: 70px !important; width: 70px !important;" src="{{ screen.thumbnail }}" alt="[]" />
+                <img style="height: 70px !important; width: 70px !important;" src="{{ screen.thumbnail }}" alt="[]" />
             </li>
             {% endif %}
             <li>
@@ -164,11 +166,16 @@
         <div class="details">
             <table style="width:80%; border: solid;">
                 <tr>
+                    <th>Sizes</th>
                     <th>Qty Received</th>
                     <th>Qty Picked</th>
                     <th>Qty Shipped</th>
                 </tr>
+
                 <tr>
+                    <td>
+                        {{ screen.size}}
+                    </td>
                     <td>____________</td>
                     <td>____________</td>
                     <td>____________</td>
@@ -199,12 +206,14 @@
                 {% for view in item.views %}
                 <li>
                     <label>{{ view.name }}</label>
-                    <img  style="height: 70px !important; width: 70px !important;" src="{{ view.image_url_300}}" alt="[]" />
+                    <img style="height: 70px !important; width: 70px !important;" src="{{ view.image_url_300}}"
+                        alt="[]" />
                 </li>
                 {% endfor %}
                 {% if (item.is_asi?) %}
                 <li>
-                    <img  style="height: 70px !important; width: 70px !important;" src="/manage/asi/image/{{ item.asi_image }}?size=normal" width="300px" alt="[]" />
+                    <img style="height: 70px !important; width: 70px !important;"
+                        src="/manage/asi/image/{{ item.asi_image }}?size=normal" width="300px" alt="[]" />
                 </li>
                 {% endif %}
                 {% if item.size_field %}
@@ -276,20 +285,27 @@
             </ul>
             {% endif %}
         </div>
+        <div>
         <div class="details">
             <table style="width:80%; border: solid;">
                 <tr>
+                    <th>Sizes</th>
                     <th>Qty Received</th>
                     <th>Qty Picked</th>
                     <th>Qty Shipped</th>
                 </tr>
+
                 <tr>
+                    <td>
+                        {{ item.sizes }}
+                    </td>
                     <td>____________</td>
                     <td>____________</td>
                     <td>____________</td>
                 </tr>
             </table>
         </div>
+    </div>
     </div>
 
     {% if item.using_teamnames %}
@@ -321,11 +337,17 @@
         </table>
         <table style="width:80%; border: solid;">
             <tr>
+                <th>Sizes</th>
                 <th>Qty Received</th>
                 <th>Qty Picked</th>
                 <th>Qty Shipped</th>
             </tr>
+
             <tr>
+                
+                <td>
+                    {{ teamname.size_label }}
+                </td>
                 <td>____________</td>
                 <td>____________</td>
                 <td>____________</td>
@@ -345,7 +367,7 @@
         {% assign first_element = false %}
         {% endif %}
         <div class="image">
-            <img  style="height: 70px !important; width: 70px !important;" src="{{ element.thumbnail_300 }}" alt="[]" />
+            <img style="height: 70px !important; width: 70px !important;" src="{{ element.thumbnail_300 }}" alt="[]" />
 
             <ul>
                 <li><label>Graphic Name</label>{{ element.name }}</li>
@@ -386,11 +408,17 @@
         <div class="details">
             <table style="width:80%; border: solid;">
                 <tr>
+                    <th>Sizes</th>
                     <th>Qty Received</th>
                     <th>Qty Picked</th>
                     <th>Qty Shipped</th>
                 </tr>
+
                 <tr>
+                   
+                    <td>
+                        {{ element.dimensions }}
+                    </td>
                     <td>____________</td>
                     <td>____________</td>
                     <td>____________</td>
@@ -411,7 +439,8 @@
         {% endif %}
         {% if attachment.image_url %}
         <div class="image">
-            <img  style="height: 70px !important; width: 70px !important;" src="{{ attachment.image_url }}" alt="[]" class="attachment_image" />
+            <img style="height: 70px !important; width: 70px !important;" src="{{ attachment.image_url }}" alt="[]"
+                class="attachment_image" />
         </div>
         {% else %}
         <div>
@@ -423,12 +452,15 @@
         </ul>
         <div class="details">
             <table style="width:80%; border: solid;">
-                <tr style="border: none !important;">
+                <tr>
+                    
                     <th>Qty Received</th>
                     <th>Qty Picked</th>
                     <th>Qty Shipped</th>
                 </tr>
+
                 <tr>
+                    
                     <td>____________</td>
                     <td>____________</td>
                     <td>____________</td>
