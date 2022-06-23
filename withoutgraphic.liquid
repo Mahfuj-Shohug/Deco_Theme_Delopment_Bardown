@@ -185,28 +185,33 @@
             </ul>
             {% endif %}
         </div>
+       
         <div>
             <div class="details">
-                <table style="width:80%; border: solid;">
+                <table style="width:100%; border: solid;">
                     <tr>
-                        <th>Sizes</th>
+                        {% if item.size_field %}
+                        <th style="width: 160px !important;">Sizes</th>
+                        {% endif %}
                         <th>Qty Received</th>
                         <th>Qty Picked</th>
                         <th>Qty Shipped</th>
                     </tr>
-                    {% assign row_count = 1 %}
-                    {% for item in order.main_items %}
                     <tr>
-                        {% if item.free_form_size %}
-                        <td>{{ item.free_form_size }}</td>
-                        {% else %}
-                        <td>{{ item.sizes }}</td>
-                        <td>____________</td>
-                        <td>____________</td>
-                        <td>____________</td>
+                        
+                        {% if item.size_field %}
+                        <!-- {% assign row_count = 1 %} -->
+                        {% for size in item.sizes %}
+                        <td style="text-align: left; width: 160px !important;">{{ item.sizes }}</td>
+                        <!-- {% assign row_count = row_count | plus:1 %} -->
+                        {% endfor %}
+                        {% endif %}
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        
                     </tr>
-                    {% assign row_count = row_count | plus:1 %}
-                    {% endfor %}
+                   
                 </table>
             </div>
         </div>
@@ -223,7 +228,7 @@
                 {{ fulfillment_system.fc_settings.state }} {{ fulfillment_system.fc_settings.zip }}<br />
                 {{ fulfillment_system.fc_settings.country_name }}
             </span>
-            <a href="http://{{ fulfillment_system.primary_domain }}">http://{{ fulfillment_system.primary_domain }}</a>
+            <!-- <a href="http://{{ fulfillment_system.primary_domain }}">http://{{ fulfillment_system.primary_domain }}</a> -->
         </h1>
     </div>
     {% endif %}
