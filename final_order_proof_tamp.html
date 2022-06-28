@@ -2,7 +2,7 @@
 <div id="in_container">
     <div style="display: block; page-break-after: avoid;">
         <div id="in_pre">
-            {% logo 200 200 %}
+            {% logo 100 100 %}
             <center style="font-size: 22px; font-weight: bold; color: #000;">
                 {% if is_quote %}
                 RECEVING/PICKING/PACKING LIST
@@ -74,7 +74,7 @@
             <div class="shipping">
                 <h3>Shipping Address</h3>
                 <h4>
-                   <h4>{% if customer.company %}<br>{{ customer.full_name }}<br>{{ customer.company }}{% endif %}</h4>
+                    {% if customer.company %}{{ customer.full_name }}<br>{{ customer.company }}{% endif %}</h4>
                 <span>
                     {{customer.address}}<br />
                     {{customer.city}}, {{customer.state}} {{customer.country_name}} {{ customer.zip }}
@@ -105,13 +105,13 @@
                 {% for view in item.views %}
                 <li>
                     <label>{{ view.name }}</label>
-                    <img style="height: 100px !important; width: 100px !important;" src="{{ view.image_url_300}}"
+                    <img style="height: 120px !important; width: 120px !important;" src="{{ view.image_url_300}}"
                         alt="[]" />
                 </li>
                 {% endfor %}
                 {% if (item.is_asi?) %}
                 <li>
-                    <img style="height: 100px !important; width: 100px !important;"
+                    <img style="height: 120px !important; width: 120px !important;"
                         src="/manage/asi/image/{{ item.asi_image }}?size=normal" width="300px" alt="[]" />
                 </li>
 
